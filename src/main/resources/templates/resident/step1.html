@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('Choose document')}"></head>
+  <body>
+    <div class="app">
+      <header th:replace="~{fragments/shared :: header}"></header>
+
+      <form th:action="@{/request/details}" method="get">
+        <main class="page">
+          <div
+            th:replace="~{fragments/shared :: stepper(1, 'Choose document · Pumili')}"
+          ></div>
+
+          <label class="opt">
+            <span class="ico"></span>
+            <span
+              ><b>Barangay Clearance</b>
+              <p>
+                For jobs, school, loans · Para sa trabaho, paaralan, pautang.
+                Magdala ng valid ID.
+              </p>
+              <span class="fee"
+                >₱50 for job application · Free otherwise</span
+              ></span
+            >
+            <input type="radio" name="doc" value="CLEARANCE" checked />
+          </label>
+          <label class="opt">
+            <span class="ico"></span>
+            <span
+              ><b>Certificate of Indigency</b>
+              <p>
+                Medical, burial or financial aid · Tulong medikal, pampalibing o
+                pinansyal.
+              </p>
+              <span class="fee">Free · Libre</span></span
+            >
+            <input type="radio" name="doc" value="INDIGENCY" />
+          </label>
+          <label class="opt">
+            <span class="ico"></span>
+            <span
+              ><b>Certificate of Residency</b>
+              <p>Proof you live here · Patunay na nakatira ka sa barangay.</p>
+              <span class="fee">Free · Libre</span></span
+            >
+            <input type="radio" name="doc" value="RESIDENCY" />
+          </label>
+
+          <label class="f"
+            >Purpose · Layunin
+            <select name="purpose" id="purpose">
+              <option th:each="p : ${purposes}" th:text="${p}" th:value="${p}">
+                Employment / job application
+              </option>
+            </select>
+          </label>
+
+          <div class="feebox">
+            <div>
+              Fee to pay at the counter · Bayad sa counter<br />
+              <span class="muted"
+                >Magbayad nang personal · Walang online na bayad</span
+              >
+            </div>
+            <strong id="fee">₱50.00</strong>
+          </div>
+        </main>
+        <div class="sticky">
+          <button class="btn btn--primary" type="submit">Next · Susunod</button>
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Preview only: the real fee comes from Document.getFee(purpose) on the server.
+      const fee = () => {
+        const doc = document.querySelector("input[name=doc]:checked").value;
+        const p = document.getElementById("purpose").value;
+        document.getElementById("fee").textContent =
+          doc === "CLEARANCE" && p.startsWith("Employment")
+            ? "₱50.00"
+            : "₱0.00";
+      };
+      document
+        .querySelectorAll("input[name=doc]")
+        .forEach((r) => r.addEventListener("change", fee));
+      document.getElementById("purpose").addEventListener("change", fee);
+      fee();
+    </script>
+  </body>
+</html>

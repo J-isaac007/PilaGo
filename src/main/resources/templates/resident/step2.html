@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('Your details')}"></head>
+  <body>
+    <div class="app">
+      <header th:replace="~{fragments/shared :: header}"></header>
+
+      <!-- R4 (Review) is not built yet; this posts to /request/review -->
+      <form th:action="@{/request/review}" method="post">
+        <input type="hidden" name="doc" th:value="${doc}" />
+        <input type="hidden" name="purpose" th:value="${purpose}" />
+        <main class="page">
+          <div
+            th:replace="~{fragments/shared :: stepper(2, 'Your details · Detalye')}"
+          ></div>
+
+          <label class="f"
+            >Full name · Buong pangalan
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Dela Cruz, Juan M."
+              required
+            />
+            <span class="muted">Last name, First name, M.I.</span></label
+          >
+
+          <label class="f"
+            >Age · Edad
+            <input
+              type="text"
+              name="age"
+              id="age"
+              inputmode="numeric"
+              placeholder="64"
+              required
+            />
+            <span
+              class="error"
+              th:if="${ageError}"
+              th:text="${ageError}"
+            ></span>
+            <span
+              ><span class="tag tag--senior" id="seniorTag" hidden
+                >Senior 60+ · Nakatatanda</span
+              ></span
+            ></label
+          >
+
+          <label class="f"
+            >Address · Tirahan
+            <input
+              type="text"
+              name="address"
+              placeholder="123 Rizal St., Purok 4"
+              required
+            />
+            <span class="muted">House no., street, purok</span></label
+          >
+
+          <div>
+            <b style="font-size: 0.9rem"
+              >How long have you lived here? · Gaano katagal ka nang nakatira
+              dito?</b
+            >
+            <div class="row" style="margin-top: 0.5rem">
+              <label class="f"
+                >Years · Taon
+                <input type="number" name="years" min="0" value="0"
+              /></label>
+              <label class="f"
+                >Months · Buwan
+                <input type="number" name="months" min="0" max="11" value="0"
+              /></label>
+            </div>
+            <p class="muted" style="margin-top: 0.5rem">
+              At least 6 months · Dapat 6 na buwan o higit na nakatira dito.
+            </p>
+          </div>
+
+          <label class="check"
+            ><input type="checkbox" name="pwd" />
+            <span
+              ><b>I am a PWD · Ako ay may kapansanan</b>
+              <p>Bring your PWD ID · Dalhin ang PWD ID. Uunahin ka.</p></span
+            ></label
+          >
+          <label class="check"
+            ><input type="checkbox" name="hasRecord" />
+            <span
+              ><b>Pending barangay record · May kaso sa barangay</b>
+              <p>Susuriin muna ito ng kalihim.</p></span
+            ></label
+          >
+        </main>
+        <div class="sticky">
+          <button class="btn btn--primary" type="submit">
+            Review · Suriin
+          </button>
+          <a class="btn btn--ghost" th:href="@{/request/document}"
+            >Back · Bumalik</a
+          >
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Show the Senior badge as soon as the age is 60 or more (the server re-checks it).
+      document.getElementById("age").addEventListener("input", (e) => {
+        document.getElementById("seniorTag").hidden = !(
+          parseInt(e.target.value, 10) >= 60
+        );
+      });
+    </script>
+  </body>
+</html>

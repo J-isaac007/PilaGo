@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('Barangay documents')}"></head>
+  <body>
+    <div class="app">
+      <header th:replace="~{fragments/shared :: header}"></header>
+
+      <main class="page">
+        <p class="eyebrow">Barangay San Isidro · Document requests</p>
+        <h1>Get your barangay documents without the long wait</h1>
+        <p class="lead">
+          Kumuha ng tiket online, sundan ang iyong pila, at pumunta lang sa
+          barangay kapag ikaw na.
+        </p>
+
+        <a class="btn btn--primary" th:href="@{/request/document}"
+          >Get a ticket · Kumuha ng tiket</a
+        >
+        <a class="link" th:href="@{/ticket}"
+          >I have a ticket · May tiket na ako</a
+        >
+
+        <section class="teaser">
+          <div>
+            <div class="eyebrow" style="color: #cfe9f6">Now serving</div>
+            <div class="big" th:text="${nowServing}">C-003</div>
+          </div>
+          <div class="r">
+            <b><span th:text="${waiting}">12</span> waiting · naghihintay</b
+            ><br />
+            ≈ <span th:text="${waitMinutes}">25</span> min wait<br />
+            <b>● Live · Ngayon</b>
+          </div>
+        </section>
+
+        <h2>What you can request · Mga maaaring hilingin</h2>
+        <div class="doc">
+          <span class="ico"></span>
+          <div>
+            <b>Barangay Clearance</b
+            ><span class="muted"
+              >For jobs, school, loans · Trabaho, paaralan, pautang</span
+            >
+          </div>
+          <span class="fee">₱0–50</span>
+        </div>
+        <div class="doc">
+          <span class="ico"></span>
+          <div>
+            <b>Certificate of Indigency</b
+            ><span class="muted"
+              >Medical or financial aid · Tulong medikal o pinansyal</span
+            >
+          </div>
+          <span class="fee">Free · Libre</span>
+        </div>
+        <div class="doc">
+          <span class="ico"></span>
+          <div>
+            <b>Certificate of Residency</b
+            ><span class="muted">Proof you live here · Patunay ng tirahan</span>
+          </div>
+          <span class="fee">Free · Libre</span>
+        </div>
+
+        <section class="how">
+          <h2>How it works · Paano ito gumagana</h2>
+          <p>
+            <i>1</i
+            ><span
+              >Pumili ng dokumento at ilagay ang detalye · Choose and fill
+              in</span
+            >
+          </p>
+          <p>
+            <i>2</i
+            ><span>Get a ticket on your phone · Kumuha ng tiket sa phone</span>
+          </p>
+          <p>
+            <i>3</i
+            ><span
+              >Come when your number is near · Pumunta kapag malapit na</span
+            >
+          </p>
+        </section>
+
+        <p><span class="tag tag--senior">Senior 60+ · Nakatatanda</span></p>
+        <p>
+          <span class="tag tag--pwd">PWD · May kapansanan</span>
+          <span class="muted">are served first · inuuna</span>
+        </p>
+
+        <a class="link" th:href="@{/login}">Staff login · Para sa kawani</a>
+        <a class="link" th:href="@{/display}">Display board · Pila sa TV</a>
+        <p class="muted link">Mon–Fri · 8 AM–5 PM</p>
+      </main>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head th:fragment="head(title)">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${title} + ' · PilaGo'">PilaGo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&amp;display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      th:href="@{/css/pilago.css}"
+      href="../../static/css/pilago.css"
+    />
+  </head>
+  <body>
+    <header class="bar" th:fragment="header">
+      <div class="mark">P</div>
+      <div><b>PilaGo</b><small>Brgy. San Isidro</small></div>
+    </header>
+
+    <!-- Step bars: n = current step (1-3), label = "Choose document · Pumili" etc. -->
+    <div th:fragment="stepper(n, label)">
+      <p
+        class="eyebrow"
+        th:text="'Step ' + ${n} + ' of 3 · Hakbang ' + ${n} + ' ng 3'"
+      >
+        Step 1 of 3 · Hakbang 1 ng 3
+      </p>
+      <p class="eyebrow sub" th:text="${label}">Choose document · Pumili</p>
+      <div class="bars">
+        <i
+          th:each="i : ${#numbers.sequence(1, 3)}"
+          th:classappend="${i < n} ? 'done' : (${i == n} ? 'now' : '')"
+        ></i>
+      </div>
+    </div>
+  </body>
+</html>
