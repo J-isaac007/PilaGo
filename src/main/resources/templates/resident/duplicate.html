@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('You already have a ticket', false)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{fragments/shared :: header}"></header>
+
+    <!-- R10 / R20 · Already has a ticket for this document today -->
+    <main class="pg-page">
+      <div th:replace="~{fragments/shared :: tipWith('resident.duplicate.tip', ${existing.ticketNumber}, 'warning')}"></div>
+      <div class="pg-stack">
+        <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:href="@{/ticket/{t}(t=${existing.token})}"
+           th:text="${@bi.t('resident.cta.open-ticket')}">Open my ticket · Buksan ang tiket ko</a>
+        <a class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" th:href="@{/}"
+           th:text="${@bi.t('resident.cta.start')}">Back to start · Bumalik sa simula</a>
+      </div>
+    </main>
+  </body>
+</html>
