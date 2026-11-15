@@ -77,6 +77,6 @@ class RequestStatusTest {
     @Test
     void cssModifiersMatchTheThemeClasses() {
         assertThat(RequestStatus.ON_HOLD.getCssModifier()).isEqualTo("on-hold");
-        assertThat(RequestStatus.NO_SHOW.getCssModifier()).isEqualTo("skipped");
+        assertThat(RequestStatus.NO_SHOW.getCssModifier()).isEqualTo("no-show");
     }
 }

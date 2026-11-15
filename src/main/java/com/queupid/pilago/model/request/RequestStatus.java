@@ -56,8 +56,8 @@ public enum RequestStatus {
         return messageKey;
     }
 
-    /** CSS modifier for the status badge, e.g. {@code pg-badge--on-hold}. */
+    /** CSS modifier for the status badge, e.g. {@code pg-badge--on-hold}, {@code pg-badge--no-show}. */
     public String getCssModifier() {
-        return this == NO_SHOW ? "skipped" : name().toLowerCase().replace('_', '-');
+        return name().toLowerCase().replace('_', '-');
     }
 }

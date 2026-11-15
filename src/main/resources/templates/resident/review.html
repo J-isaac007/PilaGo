@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('Review', false)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{fragments/shared :: header}"></header>
+
+    <!-- R4 / R14 · Review, then issue the ticket -->
+    <form th:action="@{/request/review}" method="post">
+      <main class="pg-page" th:object="${form}">
+        <div th:replace="~{fragments/shared :: stepper(3)}"></div>
+        <div th:replace="~{fragments/shared :: tip('resident.review.tip', '')}"></div>
+
+        <dl class="pg-summary">
+          <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.en(form.documentType.messageKey)}">Barangay Clearance</dd></div>
+          <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(form.purpose.messageKey)}">Employment</dd></div>
+          <div><dt th:text="${@bi.t('resident.review.name')}">Name</dt><dd th:text="*{fullName}">Dela Cruz, Juan M.</dd></div>
+          <div><dt th:text="${@bi.t('resident.field.age')}">Age</dt><dd th:text="*{age}">64</dd></div>
+          <div><dt th:text="${@bi.t('resident.field.address')}">Address</dt><dd th:text="*{address}">123 Rizal St., Purok 4</dd></div>
+          <div><dt th:text="${@bi.t('resident.review.lived')}">Lived here</dt>
+            <dd th:text="${@bi.t('resident.review.lived.value', form.residencyYears, form.residencyMonths)}">3 years, 2 months</dd></div>
+          <div><dt th:text="${@bi.t('resident.review.pwd')}">PWD</dt>
+            <dd th:text="${@bi.t(form.pwd ? 'resident.review.yes' : 'resident.review.no')}">No</dd></div>
+          <div><dt th:text="${@bi.t('resident.review.fee')}">Fee</dt><dd class="pg-fee" th:text="${@bi.fee(fee)}">₱50.00</dd></div>
+        </dl>
+
+        <p class="pg-callout" th:if="${priorityGroup.priority}"
+           th:text="${@bi.t('resident.review.priority', priorityGroup.prefix)}">You are in the priority line.</p>
+        <p class="pg-callout pg-callout--warning" th:if="${willBeOnHold}"
+           th:text="${@bi.t('resident.review.hold')}">The secretary will check your residency first.</p>
+
+        <div class="pg-banner">
+          <b th:text="${@bi.t('resident.review.one-ticket')}">One ticket per document</b>
+          <span th:text="${@bi.t('resident.review.one-ticket.note')}">Only one active ticket for each document.</span>
+        </div>
+
+        <div class="pg-actions">
+          <a class="pg-btn pg-btn--lg pg-btn--secondary" th:href="@{/request/details}" th:text="${@bi.t('resident.cta.edit')}">Edit · Baguhin</a>
+          <button class="pg-btn pg-btn--lg pg-btn--accent" type="submit" th:text="${@bi.t('resident.cta.confirm')}">Get ticket · Kumuha</button>
+        </div>
+      </main>
+    </form>
+  </body>
+</html>

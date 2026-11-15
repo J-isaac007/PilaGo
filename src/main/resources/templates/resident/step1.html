@@ -1,92 +1,66 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/shared :: head('Choose document')}"></head>
-  <body>
-    <div class="app">
-      <header th:replace="~{fragments/shared :: header}"></header>
+  <head th:replace="~{fragments/shared :: head('Choose document', false)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{fragments/shared :: header}"></header>
 
-      <form th:action="@{/request/details}" method="get">
-        <main class="page">
-          <div
-            th:replace="~{fragments/shared :: stepper(1, 'Choose document · Pumili')}"
-          ></div>
+    <!-- R2 / R12 · Step 1, choose document and purpose -->
+    <form th:action="@{/request/document}" th:object="${form}" method="post">
+      <main class="pg-page">
+        <div th:replace="~{fragments/shared :: stepper(1)}"></div>
+        <div th:replace="~{fragments/shared :: tip('resident.step1.tip', '')}"></div>
 
-          <label class="opt">
-            <span class="ico"></span>
-            <span
-              ><b>Barangay Clearance</b>
-              <p>
-                For jobs, school, loans · Para sa trabaho, paaralan, pautang.
-                Magdala ng valid ID.
-              </p>
-              <span class="fee"
-                >₱50 for job application · Free otherwise</span
-              ></span
-            >
-            <input type="radio" name="doc" value="CLEARANCE" checked />
+        <fieldset class="pg-fieldset">
+          <legend class="pg-field__label" th:text="${@bi.t('resident.review.document')}">Document · Dokumento</legend>
+          <label class="pg-card pg-choice" th:each="d : ${documents}">
+            <span th:replace="~{fragments/shared :: docIcon}"></span>
+            <span class="pg-doc__text">
+              <b th:text="${@bi.en(d.messageKey)}">Barangay Clearance</b>
+              <span class="pg-secondary" th:with="k=${'resident.doc.' + d.messageKey.substring(9)}"
+                    th:text="${@bi.t(k)}">For jobs, school, loans</span>
+              <span class="pg-fee" th:text="${feeRanges.get(d)}">₱0–50</span>
+            </span>
+            <input type="radio" th:field="*{documentType}" th:value="${d.name()}" />
           </label>
-          <label class="opt">
-            <span class="ico"></span>
-            <span
-              ><b>Certificate of Indigency</b>
-              <p>
-                Medical, burial or financial aid · Tulong medikal, pampalibing o
-                pinansyal.
-              </p>
-              <span class="fee">Free · Libre</span></span
-            >
-            <input type="radio" name="doc" value="INDIGENCY" />
-          </label>
-          <label class="opt">
-            <span class="ico"></span>
-            <span
-              ><b>Certificate of Residency</b>
-              <p>Proof you live here · Patunay na nakatira ka sa barangay.</p>
-              <span class="fee">Free · Libre</span></span
-            >
-            <input type="radio" name="doc" value="RESIDENCY" />
-          </label>
+          <p class="pg-error" th:if="${#fields.hasErrors('documentType')}" th:errors="*{documentType}">Choose a document</p>
+        </fieldset>
 
-          <label class="f"
-            >Purpose · Layunin
-            <select name="purpose" id="purpose">
-              <option th:each="p : ${purposes}" th:text="${p}" th:value="${p}">
-                Employment / job application
-              </option>
-            </select>
-          </label>
+        <label class="pg-field">
+          <span class="pg-field__label" th:text="${@bi.t('resident.field.purpose')}">Purpose · Layunin</span>
+          <select class="pg-input" th:field="*{purpose}" th:classappend="${#fields.hasErrors('purpose')} ? 'is-invalid'">
+            <option value="" th:text="'— ' + ${@bi.t('resident.field.purpose')} + ' —'">— Purpose —</option>
+            <option th:each="p : ${purposes}" th:value="${p.name()}" th:text="${@bi.t(p.messageKey)}">Employment · Trabaho</option>
+          </select>
+          <span class="pg-error" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}">Choose a purpose</span>
+        </label>
 
-          <div class="feebox">
-            <div>
-              Fee to pay at the counter · Bayad sa counter<br />
-              <span class="muted"
-                >Magbayad nang personal · Walang online na bayad</span
-              >
-            </div>
-            <strong id="fee">₱50.00</strong>
+        <div class="pg-feebox">
+          <div>
+            <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter · Bayad sa counter</b>
+            <p class="pg-muted" th:text="${@bi.t('resident.fee.note')}">Pay in person.</p>
           </div>
-        </main>
-        <div class="sticky">
-          <button class="btn btn--primary" type="submit">Next · Susunod</button>
+          <strong class="pg-feebox__amount" id="fee" aria-live="polite">—</strong>
         </div>
-      </form>
-    </div>
 
-    <script>
-      // Preview only: the real fee comes from Document.getFee(purpose) on the server.
-      const fee = () => {
-        const doc = document.querySelector("input[name=doc]:checked").value;
-        const p = document.getElementById("purpose").value;
-        document.getElementById("fee").textContent =
-          doc === "CLEARANCE" && p.startsWith("Employment")
-            ? "₱50.00"
-            : "₱0.00";
-      };
-      document
-        .querySelectorAll("input[name=doc]")
-        .forEach((r) => r.addEventListener("change", fee));
-      document.getElementById("purpose").addEventListener("change", fee);
-      fee();
+        <div class="pg-actions">
+          <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('cta.next')}">Next · Susunod</button>
+        </div>
+      </main>
+    </form>
+
+    <!-- Shows the fee for the chosen document and purpose. The amounts come from the server
+         (Document.getFee), so this script has no fee rules of its own. -->
+    <script th:inline="javascript">
+      const fees = /*[[${fees}]]*/ {};
+      const feeBox = document.getElementById("fee");
+      const purpose = document.querySelector("select[name=purpose]");
+      function showFee() {
+        const doc = document.querySelector("input[name=documentType]:checked");
+        feeBox.textContent = doc && purpose.value ? fees[doc.value + "|" + purpose.value] : "—";
+      }
+      document.querySelectorAll("input[name=documentType]").forEach((r) => r.addEventListener("change", showFee));
+      purpose.addEventListener("change", showFee);
+      showFee();
     </script>
   </body>
 </html>

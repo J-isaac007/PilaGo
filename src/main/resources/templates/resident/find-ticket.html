@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('Your ticket', false)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{fragments/shared :: header}"></header>
+
+    <!-- No ticket on this phone, or a link that no longer works -->
+    <main class="pg-page" th:with="key=${notFound} ? 'resident.find.not-found' : 'resident.find.tip'">
+      <div th:replace="~{fragments/shared :: tip(${key}, ${notFound} ? 'warning' : '')}"></div>
+      <div class="pg-stack">
+        <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:href="@{/request/document}"
+           th:text="${@bi.t('resident.landing.get-ticket')}">Get a ticket · Kumuha ng tiket</a>
+        <a class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" th:href="@{/}"
+           th:text="${@bi.t('resident.cta.start')}">Back to start · Bumalik sa simula</a>
+      </div>
+    </main>
+  </body>
+</html>

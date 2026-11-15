@@ -47,7 +47,7 @@ class PilaGoSystemTests {
         }
         List<String> missing = new ArrayList<>();
         for (String key : props.stringPropertyNames()) {
-            if (key.startsWith("form.")) {
+            if (key.startsWith("form.") || key.startsWith("typeMismatch")) {
                 continue; // validation messages are one bilingual string
             }
             String twin = key.endsWith(".fil") ? key.substring(0, key.length() - 4) : key + ".fil";

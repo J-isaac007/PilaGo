@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{fragments/shared :: head('Your ticket', true)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{fragments/shared :: header}"></header>
+
+    <!-- R5–R9 / R15–R19 · The resident's ticket. Only the "live" part refreshes. -->
+    <main class="pg-page">
+      <div th:fragment="live" id="live" class="pg-stack"
+           th:attr="hx-get=${active} ? @{/ticket/{t}/live(t=${ticket.token})} : null,
+                    hx-trigger=${active} ? 'every 5s' : null,
+                    hx-swap=${active} ? 'outerHTML' : null"
+           th:with="status=${ticket.status}, tipKey=${'resident.ticket.tip.' + status.cssModifier}">
+
+        <div th:replace="~{fragments/shared :: tip(${tipKey},
+                ${called} ? 'highlight' : (${status.name() == 'ON_HOLD' or status.name() == 'NO_SHOW'} ? 'warning'
+                : (${status.name() == 'READY'} ? 'success' : '')))}"></div>
+
+        <div class="pg-ticket-layout pg-stack">
+          <div class="pg-stack">
+            <section class="pg-ticket" aria-live="polite"
+                     th:classappend="${called} ? 'pg-ticket--called' : (${status.name() == 'NO_SHOW'} ? 'pg-ticket--skipped' : '')">
+              <p class="pg-ticket__eyebrow" th:text="${@bi.t('resident.ticket.title')}">Your ticket · Ang iyong tiket</p>
+              <p class="pg-ticket__number" th:text="${ticket.ticketNumber}">S-012</p>
+              <span class="pg-tag" th:classappend="'pg-tag--' + ${ticket.priorityGroup.cssModifier}"
+                    th:text="${@bi.t(ticket.priorityGroup.messageKey)}">Senior 60+ · Nakatatanda</span>
+              <span class="pg-ticket__rule"></span>
+              <div class="pg-ticket__meta" th:if="${status.name() == 'WAITING'}">
+                <div>
+                  <p class="pg-ticket__label" th:text="${@bi.t('resident.ticket.now-serving')}">Now serving</p>
+                  <p class="pg-ticket__value" th:text="${nowServing}">C-009</p>
+                </div>
+                <div>
+                  <p class="pg-ticket__label" th:text="${@bi.t('resident.ticket.ahead')}">Ahead of you</p>
+                  <p class="pg-ticket__value" th:text="${ahead}">2</p>
+                </div>
+              </div>
+              <p class="pg-ticket__doc">
+                <span th:text="${@bi.en(ticket.documentType.messageKey)}">Barangay Clearance</span> ·
+                <span th:text="${@bi.t(ticket.purpose.messageKey)}">Employment · Trabaho</span>
+              </p>
+            </section>
+            <p class="pg-muted" th:if="${active}" th:text="${@bi.t('resident.ticket.save')}">Save this link.</p>
+          </div>
+
+          <div class="pg-stack">
+            <section class="pg-panel">
+              <div class="pg-panel__head">
+                <h2 class="pg-h3" th:text="${@bi.t('resident.ticket.status')}">Status · Katayuan</h2>
+                <span class="pg-badge" th:classappend="'pg-badge--' + ${status.cssModifier}"
+                      th:text="${@bi.t(status.messageKey)}">Waiting · Naghihintay</span>
+              </div>
+              <p class="pg-secondary" th:if="${status.name() == 'WAITING'}"
+                 th:text="${@bi.t('resident.ticket.wait', waitMinutes)}">About 12 min</p>
+              <th:block th:if="${ticket.holdReason != null}">
+                <p th:text="${@bi.en(ticket.holdReason.messageKey)}">Lived here less than 6 months.</p>
+                <p class="pg-secondary" lang="fil" th:text="${@bi.fil(ticket.holdReason.messageKey)}">Wala pang 6 na buwan.</p>
+                <p class="pg-secondary" th:if="${ticket.holdNote != null}" th:text="${ticket.holdNote}">Note</p>
+              </th:block>
+            </section>
+
+            <div class="pg-feebox" th:unless="${ticket.free}">
+              <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter · Bayad sa counter</b>
+              <strong class="pg-feebox__amount" th:text="${@bi.fee(ticket.fee)}">₱50.00</strong>
+            </div>
+
+            <div class="pg-stack">
+              <button class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
+                      data-copy th:text="${@bi.t('resident.ticket.copy')}">Copy link · Kopyahin ang link</button>
+              <span id="copied" hidden th:text="${@bi.t('resident.ticket.copied')}">Link copied · Nakopya na</span>
+              <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:unless="${active}" th:href="@{/request/document}"
+                 th:text="${@bi.t('resident.cta.new-ticket')}">Get a new ticket · Kumuha ng bagong tiket</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      // Copy this page's link (it holds the ticket's secret token). Works after htmx swaps too.
+      document.addEventListener("click", async (e) => {
+        const btn = e.target.closest("[data-copy]");
+        if (!btn) return;
+        try {
+          await navigator.clipboard.writeText(location.href);
+          btn.textContent = document.getElementById("copied").textContent;
+        } catch (err) { /* clipboard blocked: the link is still in the address bar */ }
+      });
+    </script>
+  </body>
+</html>
