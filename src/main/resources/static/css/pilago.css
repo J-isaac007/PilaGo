@@ -1,0 +1,69 @@
+/* PilaGo · resident screens (mobile-first, Figma frames at 390px)
+   TODO: replace these variables with tokens.css from the theme artifact. */
+:root {
+  --cerulean: #0079ad; --cerulean-dark: #1f6486; --bg: #eef7f2; --card: #fbfdff;
+  --line: #d5e0ea; --ink: #0f172a; --muted: #5b6b7c; --yellow: #f2d53c; --yellow-edge: #c9a91c;
+  --green: #0b6b3a; --mint: #d8f8e4; --tint: #dcedf6;
+  --senior-bg: #c9f5ec; --senior-fg: #0b6b5c; --pwd-bg: #e3e1ff; --pwd-fg: #3a2fa0;
+}
+* { box-sizing: border-box; margin: 0; }
+body { font-family: "Nunito", system-ui, sans-serif; background: var(--bg); color: var(--ink);
+  font-size: 1rem; line-height: 1.4; }
+.app { max-width: 30rem; min-height: 100vh; margin: 0 auto; background: var(--bg); }
+.page { padding: 1.5rem; display: grid; gap: 1.1rem; }
+a { color: var(--cerulean); font-weight: 700; text-decoration: none; }
+
+.bar { background: var(--cerulean); color: #fff; display: flex; gap: .75rem; align-items: center; padding: .75rem 1.5rem; }
+.mark { width: 2.2rem; height: 2.2rem; border-radius: .6rem; background: #fff; color: var(--cerulean);
+  display: grid; place-items: center; font-weight: 900; font-size: 1.4rem; }
+.bar b { display: block; line-height: 1.15; } .bar small { font-size: .85rem; }
+
+.eyebrow { font-size: .75rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #0a5a82; }
+.eyebrow.sub { color: var(--muted); }
+h1 { font-size: 2rem; line-height: 1.15; } h2 { font-size: 1.25rem; } .lead { font-size: 1.1rem; color: #334155; }
+.muted { color: var(--muted); font-size: .9rem; }
+
+.btn { display: block; width: 100%; text-align: center; padding: .9rem 1rem; border-radius: .8rem; font: inherit;
+  font-weight: 800; cursor: pointer; min-height: 2.75rem; }
+.btn--primary { background: var(--yellow); color: var(--ink); border: 0; box-shadow: 0 3px 0 var(--yellow-edge); }
+.btn--ghost { background: var(--card); color: var(--cerulean); border: 2px solid var(--line); box-shadow: 0 3px 0 var(--line); }
+.link { text-align: center; }
+
+.teaser { background: linear-gradient(145deg, var(--cerulean), var(--cerulean-dark)); color: #fff;
+  border-radius: 1rem; padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; }
+.teaser .big { font-size: 2.6rem; font-weight: 900; line-height: 1; } .teaser .r { text-align: right; font-size: .9rem; }
+
+.doc, .opt, .check { background: var(--card); border: 1px solid var(--line); border-radius: 1rem; padding: 1rem;
+  display: flex; gap: .8rem; align-items: flex-start; }
+.doc { align-items: center; } .doc div { flex: 1; } .doc b, .opt b, .check b { display: block; }
+.doc .fee { flex: 0 0 auto; color: var(--green); font-weight: 800; text-align: right; }
+.ico { flex: 0 0 2.4rem; height: 2.4rem; border-radius: .6rem; background: var(--tint); position: relative; }
+.ico::after { content: ""; position: absolute; inset: .55rem .7rem; background: var(--cerulean); border-radius: .2rem; }
+.how { background: var(--mint); border-radius: 1rem; padding: 1.1rem; display: grid; gap: .8rem; }
+.how p { display: flex; gap: .75rem; align-items: flex-start; }
+.how i { flex: 0 0 1.8rem; height: 1.8rem; border-radius: 50%; background: var(--green); color: #fff;
+  display: grid; place-items: center; font-style: normal; font-weight: 800; }
+
+.tag { display: inline-block; font-size: .75rem; font-weight: 800; letter-spacing: .05em; text-transform: uppercase;
+  padding: .25rem .6rem; border-radius: .5rem; } .tag--senior { background: var(--senior-bg); color: var(--senior-fg); }
+.tag--pwd { background: var(--pwd-bg); color: var(--pwd-fg); }
+
+.bars { display: flex; gap: .5rem; margin-top: .4rem; } .bars i { flex: 1; height: .5rem; border-radius: 1rem; background: #dbe3ec; }
+.bars i.done { background: #0b7a52; } .bars i.now { background: var(--cerulean); }
+
+.opt { cursor: pointer; border-width: 2px; } .opt input { margin-left: auto; width: 1.4rem; height: 1.4rem; accent-color: var(--cerulean); }
+.opt:has(input:checked) { background: var(--tint); border-color: var(--cerulean); }
+.opt p { font-size: .92rem; } .opt .fee { color: var(--green); font-weight: 800; font-size: .9rem; }
+.feebox { background: var(--tint); border-radius: 1rem; padding: 1rem; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+.feebox strong { font-size: 1.6rem; color: var(--green); }
+
+label.f { font-weight: 800; font-size: .9rem; display: grid; gap: .4rem; }
+input[type=text], input[type=number], select { width: 100%; font: inherit; font-weight: 600; padding: .8rem 1rem;
+  border: 2px solid var(--line); border-radius: .8rem; background: var(--card); min-height: 2.9rem; }
+input:focus, select:focus { outline: 3px solid #8cc9e6; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.check input { width: 1.4rem; height: 1.4rem; margin-top: .2rem; accent-color: var(--cerulean); }
+.check p { font-size: .9rem; color: var(--muted); }
+.error { color: #b42318; font-weight: 700; font-size: .9rem; }
+.sticky { position: sticky; bottom: 0; background: var(--card); padding: 1rem 1.5rem; display: grid; gap: .6rem;
+  border-top: 1px solid var(--line); }
