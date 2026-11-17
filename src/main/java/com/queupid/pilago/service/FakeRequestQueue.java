@@ -232,6 +232,12 @@ public class FakeRequestQueue implements RequestQueue {
     }
 
     @Override
+    public synchronized List<Request> getAllToday() {
+        rollOverIfNewDay();
+        return List.copyOf(today);
+    }
+
+    @Override
     public synchronized DailySummary getDailySummary() {
         rollOverIfNewDay();
         Map<RequestStatus, Integer> counts = new EnumMap<>(RequestStatus.class);

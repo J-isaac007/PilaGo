@@ -20,15 +20,24 @@
         </div>
 
         <section class="pg-teaser" aria-live="polite">
-          <div>
+          <div class="pg-teaser__head">
             <p class="pg-ticket__eyebrow" th:text="${@bi.t('resident.landing.now-serving')}">Now serving · Kasalukuyang tinatawag</p>
-            <p class="pg-teaser__number" th:text="${nowServing}">C-003</p>
+            <span class="pg-live pg-teaser__live-desktop" th:text="${@bi.t('resident.landing.live')}">Live · Ngayon</span>
           </div>
+          <p class="pg-teaser__number" th:text="${nowServing}">C-003</p>
+          <!-- Phone (R1): one compact column -->
           <div class="pg-teaser__side">
             <b th:text="${@bi.t('resident.landing.waiting', waitingCount)}">4 waiting · 4 naghihintay</b>
             <span th:text="${@bi.t('resident.landing.wait', waitMinutes)}">About 25 min wait</span><br />
             <span class="pg-live" th:text="${@bi.t('resident.landing.live')}">Live · Ngayon</span>
           </div>
+          <!-- Desktop (R11): three numbers under a rule -->
+          <dl class="pg-teaser__stats">
+            <div><dt th:text="${@bi.t('resident.landing.stat.waiting')}">Waiting · Naghihintay</dt><dd th:text="${waitingCount}">4</dd></div>
+            <div><dt th:text="${@bi.t('resident.landing.stat.priority')}">Priority · Prayoridad</dt><dd th:text="${priorityCount}">2</dd></div>
+            <div><dt th:text="${@bi.t('resident.landing.stat.wait')}">Average wait · Karaniwang hintay</dt>
+              <dd th:text="${@bi.en('resident.landing.stat.minutes', waitMinutes)}">About 25 min</dd></div>
+          </dl>
         </section>
       </section>
 

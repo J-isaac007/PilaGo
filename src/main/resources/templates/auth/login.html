@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{staff/fragments :: head('Staff login', false)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{fragments/shared :: header}"></header>
+
+    <!-- S1 / S8 · Staff login. Spring Security reads staffId and password from this form. -->
+    <main class="st-login">
+      <form class="st-login__card" th:action="@{/login}" method="post">
+        <div>
+          <h1 class="pg-h2" th:text="${@bi.t('auth.title')}">Staff login · Pag-login ng kawani</h1>
+          <p class="pg-secondary" th:text="${@bi.t('auth.subtitle')}">For the secretary and captain only</p>
+        </div>
+
+        <p class="pg-callout pg-callout--warning" role="alert" th:if="${loginError}" th:text="${@bi.t('auth.error')}">Wrong Staff ID or password.</p>
+        <p class="pg-callout" role="status" th:if="${loggedOut}" th:text="${@bi.t('auth.logged-out')}">You are logged out.</p>
+
+        <label class="pg-field">
+          <span class="pg-field__label" th:text="${@bi.t('auth.staff-id')}">Staff ID · ID ng kawani</span>
+          <input class="pg-input" type="text" name="staffId" autocomplete="username" autocapitalize="characters" placeholder="SEC-001" required autofocus />
+        </label>
+        <label class="pg-field">
+          <span class="pg-field__label" th:text="${@bi.t('auth.password')}">Password · Password</span>
+          <input class="pg-input" type="password" name="password" autocomplete="current-password" required />
+        </label>
+
+        <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('auth.login')}">Log in · Mag-login</button>
+        <a class="pg-link" th:href="@{/}" th:text="${@bi.t('cta.back')}">Back · Bumalik</a>
+      </form>
+    </main>
+  </body>
+</html>

@@ -103,6 +103,9 @@ public interface RequestQueue {
     /** READY tickets, oldest first. */
     List<Request> getReady();
 
+    /** Every ticket issued today, in the order issued, whatever its status (staff search, summary). */
+    List<Request> getAllToday();
+
     /** Today's counts and fees. */
     DailySummary getDailySummary();
 }

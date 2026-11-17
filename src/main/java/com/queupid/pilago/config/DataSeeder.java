@@ -27,29 +27,35 @@ public class DataSeeder implements ApplicationRunner {
     private final String secretaryPassword;
     private final String captainId;
     private final String captainPassword;
+    private final String secretaryName;
+    private final String captainName;
 
     public DataSeeder(StaffRepository staff, PasswordEncoder encoder,
             @Value("${pilago.seed.secretary-id}") String secretaryId,
             @Value("${pilago.seed.secretary-password}") String secretaryPassword,
             @Value("${pilago.seed.captain-id}") String captainId,
-            @Value("${pilago.seed.captain-password}") String captainPassword) {
+            @Value("${pilago.seed.captain-password}") String captainPassword,
+            @Value("${pilago.seed.secretary-name:Maria Santos}") String secretaryName,
+            @Value("${pilago.seed.captain-name:Hon. Roberto Mendoza}") String captainName) {
         this.staff = staff;
         this.encoder = encoder;
         this.secretaryId = secretaryId;
         this.secretaryPassword = secretaryPassword;
         this.captainId = captainId;
         this.captainPassword = captainPassword;
+        this.secretaryName = secretaryName;
+        this.captainName = captainName;
     }
 
     @Override
     public void run(ApplicationArguments args) {
         if (staff.findByStaffIdIgnoreCase(secretaryId).isEmpty()) {
-            staff.save(new BarangaySecretary("Brgy. Secretary", 35, "Barangay Hall", secretaryId,
+            staff.save(new BarangaySecretary(secretaryName, 35, "Barangay Hall", secretaryId,
                     encoder.encode(secretaryPassword)));
             log.info("Created secretary account {}", secretaryId);
         }
         if (staff.findByStaffIdIgnoreCase(captainId).isEmpty()) {
-            staff.save(new BarangayCaptain("Brgy. Captain", 50, "Barangay Hall", captainId,
+            staff.save(new BarangayCaptain(captainName, 50, "Barangay Hall", captainId,
                     encoder.encode(captainPassword)));
             log.info("Created captain account {}", captainId);
         }
