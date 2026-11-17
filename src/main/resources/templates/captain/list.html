@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head th:replace="~{staff/fragments :: head('For signature', false)}"></head>
+  <body class="pg-root">
+    <header th:replace="~{staff/fragments :: header}"></header>
+
+    <!-- S4 / S11 · For signature, S5 / S12 · Nothing to sign -->
+    <main class="st-page">
+      <div class="st-layout" th:style="${selected == null} ? 'grid-template-columns: 1fr' : ''">
+        <div class="st-main">
+          <div class="st-sign-head">
+            <div>
+              <h1 th:text="${@bi.t('status.for-signature')}">For signature · Para sa pirma</h1>
+              <p class="pg-secondary" th:unless="${requests.isEmpty()}"
+                 th:text="${@bi.t('captain.count', requests.size())}">4 requests ready to sign</p>
+            </div>
+            <form th:if="${requests.size() > 1}" th:action="@{/captain/sign-all}" method="post">
+              <button class="pg-btn pg-btn--secondary" type="submit" th:text="${@bi.t('captain.sign-all', requests.size())}">Sign all (4) · Pirmahan lahat</button>
+            </form>
+          </div>
+
+          <div class="st-card st-panel" th:if="${requests.isEmpty()}">
+            <div th:replace="~{fragments/shared :: tip('captain.empty.tip', 'success')}"></div>
+          </div>
+
+          <div class="st-list" th:unless="${requests.isEmpty()}">
+            <article class="st-card st-item" th:each="r : ${requests}"
+                     th:classappend="${selected != null and selected.ticketNumber == r.ticketNumber} ? 'is-selected'">
+              <div class="st-item__ticket">
+                <span th:text="${r.ticketNumber}">S-004</span>
+                <span class="pg-tag" th:classappend="'pg-tag--' + ${r.priorityGroup.cssModifier}" th:text="${@bi.t(r.priorityGroup.messageKey)}">Senior 60+</span>
+              </div>
+              <div class="st-item__who">
+                <b th:text="${r.resident.name}">Ramos, Lourdes P.</b>
+                <span class="pg-secondary" th:text="${@bi.en(r.documentType.messageKey)} + ' · ' + ${@bi.t(r.purpose.messageKey)}">Certificate of Indigency · Medical</span>
+              </div>
+              <span class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free · Libre</span>
+              <div class="st-actions">
+                <a class="pg-btn pg-btn--secondary" th:href="@{/captain(view=${r.ticketNumber})}" th:text="${@bi.t('captain.view')}">View · Tingnan</a>
+                <form th:action="@{/captain/sign/{t}(t=${r.ticketNumber})}" method="post">
+                  <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('captain.sign')}">Sign · Pirmahan</button>
+                </form>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <!-- Details panel -->
+        <aside class="st-card st-detail" th:if="${selected != null}" th:with="r=${selected}, p=${selected.resident}">
+          <div class="st-detail__head">
+            <h2 th:text="${@bi.t('captain.details', r.ticketNumber)}">S-004 details · Detalye</h2>
+            <a class="st-close" th:href="@{/captain}" th:attr="aria-label=${r.ticketNumber}">×</a>
+          </div>
+          <dl class="st-dl">
+            <div><dt th:text="${@bi.t('resident.review.name')}">Name</dt><dd th:text="${p.name}">Ramos, Lourdes P.</dd></div>
+            <div><dt th:text="${@bi.t('resident.field.age')}">Age</dt><dd th:text="${p.age}">67</dd></div>
+            <div><dt th:text="${@bi.t('resident.field.address')}">Address</dt><dd th:text="${p.address}">8 Luna St.</dd></div>
+            <div><dt th:text="${@bi.t('resident.review.lived')}">Lived here</dt>
+              <dd th:text="${@bi.t('resident.review.lived.value', p.residencyYearsPart, p.residencyMonthsPart)}">22 years</dd></div>
+            <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.en(r.documentType.messageKey)}">Certificate of Indigency</dd></div>
+            <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(r.purpose.messageKey)}">Medical</dd></div>
+            <div><dt th:text="${@bi.t('resident.review.fee')}">Fee</dt><dd class="pg-fee" th:text="${@bi.fee(r.fee)}">Free · Libre</dd></div>
+          </dl>
+          <form th:action="@{/captain/sign/{t}(t=${r.ticketNumber})}" method="post">
+            <button class="pg-btn pg-btn--lg pg-btn--accent pg-btn--block" type="submit" th:text="${@bi.t('captain.sign')}">Sign · Pirmahan</button>
+          </form>
+          <p class="pg-muted" th:text="${@bi.t('captain.sign.note')}">Signing marks it Ready</p>
+        </aside>
+      </div>
+    </main>
+
+    <th:block th:replace="~{staff/fragments :: toasts}"></th:block>
+  </body>
+</html>

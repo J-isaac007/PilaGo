@@ -1,5 +1,6 @@
 package com.queupid.pilago.web.resident;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -70,7 +71,15 @@ public class TicketPage {
         model.addAttribute("waitMinutes", queue.getEstimatedWaitMinutes(ticket.getTicketNumber()));
         model.addAttribute("active", ticket.getStatus().isActive());
         model.addAttribute("called", ticket.getStatus() == RequestStatus.PROCESSING);
+        // Status tracker: shown on the normal path only (not for On hold or Skipped)
+        model.addAttribute("trackerSteps", TRACKER_STEPS);
+        model.addAttribute("currentStep", TRACKER_STEPS.indexOf(ticket.getStatus()));
     }
+
+    /** The normal path a request takes, in order, as the status tracker shows it. */
+    static final List<RequestStatus> TRACKER_STEPS = List.of(
+            RequestStatus.WAITING, RequestStatus.PROCESSING, RequestStatus.FOR_SIGNATURE,
+            RequestStatus.READY, RequestStatus.RELEASED);
 
     /** A bad or old link is not an error page: it just finds nothing. */
     private Optional<Request> find(String token) {

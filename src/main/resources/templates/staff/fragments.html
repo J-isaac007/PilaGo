@@ -1,0 +1,64 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <!-- Shared pieces for the staff and captain pages. Copy comes from messages_staff.properties via ${@bi}. -->
+
+  <head th:fragment="head(title, withHtmx)">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title th:text="${title} + ' · PilaGo'">PilaGo</title>
+    <link rel="icon" th:href="@{/favicon.ico}" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" th:href="@{/css/pilago.css}" href="../../static/css/pilago.css" />
+    <link rel="stylesheet" th:href="@{/css/staff.css}" href="../../static/css/staff.css" />
+    <script th:if="${withHtmx}" src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.4/dist/htmx.min.js"></script>
+  </head>
+
+  <body>
+    <!-- Staff header: logo, who is logged in, Log out -->
+    <header class="pg-header" th:fragment="header">
+      <a class="pg-header__brand" th:href="${me.role == 'CAPTAIN'} ? @{/captain} : @{/staff}">
+        <img th:src="@{/img/pilago-logo-192.png}" alt="" />
+        <span><b>PilaGo</b><small>Brgy. San Isidro</small></span>
+      </a>
+      <div class="st-user">
+        <span>
+          <b th:text="${me.name}">Maria Santos</b>
+          <span th:text="${@bi.t('staff.role.' + #strings.toLowerCase(me.role))}">Barangay Secretary · Kalihim</span>
+        </span>
+        <form th:action="@{/logout}" method="post">
+          <button class="st-logout" type="submit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
+            </svg>
+            <span th:text="${@bi.t('cta.logout')}">Log out · Lumabas</span>
+          </button>
+        </form>
+      </div>
+    </header>
+
+    <!-- Toasts from the last action (flash attributes "toast" and "toastError") -->
+    <th:block th:fragment="toasts">
+      <div class="st-toast" role="status" th:if="${toast != null}" th:text="${toast}">C-002 signed.</div>
+      <div class="st-toast st-toast--error" role="alert" th:if="${toastError != null}" th:text="${toastError}">Finish the ticket at the counter first.</div>
+    </th:block>
+
+    <!-- Opens a <dialog> from any button with data-open="dialog-id"; Cancel buttons use method="dialog". -->
+    <script th:fragment="dialogs">
+      document.addEventListener("click", (e) => {
+        const opener = e.target.closest("[data-open]");
+        if (opener) { document.getElementById(opener.dataset.open)?.showModal(); }
+      });
+    </script>
+
+    <!-- Check icon (Feather) -->
+    <svg th:fragment="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+    <!-- Alert icon (Feather alert-circle) -->
+    <svg th:fragment="alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  </body>
+</html>

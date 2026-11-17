@@ -31,7 +31,8 @@ class ResidentFlowTest {
     @Test
     void publicPagesLoad() throws Exception {
         mvc.perform(get("/")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Get a ticket · Kumuha ng tiket")));
+                .andExpect(content().string(containsString("Get a ticket · Kumuha ng tiket")))
+                .andExpect(content().string(containsString("Priority · Prayoridad")));
         mvc.perform(get("/request/document")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Certificate of Residency")));
         mvc.perform(get("/display")).andExpect(status().isOk())
@@ -59,7 +60,9 @@ class ResidentFlowTest {
         String ticketUrl = issued.getResponse().getRedirectedUrl();
         String page = mvc.perform(get(ticketUrl)).andExpect(status().isOk()).andReturn()
                 .getResponse().getContentAsString();
-        assertThat(page).contains("S-0").contains("Waiting · Naghihintay");
+        assertThat(page).contains("S-0").contains("Waiting · Naghihintay")
+                .contains("Wait for your number to be called · Hintayin ang iyong numero")
+                .contains("When called, go to the counter");
         mvc.perform(get(ticketUrl + "/live")).andExpect(status().isOk());
     }
 
@@ -73,6 +76,30 @@ class ResidentFlowTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("resident/step2"))
                 .andExpect(content().string(containsString("Use numbers only")));
+    }
+
+    @Test
+    void badEditCannotReachReviewOrIssueATicket() throws Exception {
+        MockHttpSession session = new MockHttpSession();
+        chooseDocument(session, "BARANGAY_CLEARANCE", "SCHOOL");
+        mvc.perform(post("/request/details").session(session).with(csrf())
+                        .param("fullName", "Diaz, Nora").param("age", "45").param("address", "Purok 1")
+                        .param("residencyYears", "2").param("residencyMonths", "0"))
+                .andExpect(redirectedUrl("/request/review"));
+
+        // Edit from Review: the bad values fail step 2 but stay in the session.
+        mvc.perform(post("/request/details").session(session).with(csrf())
+                        .param("fullName", "Diaz, Nora").param("age", "200").param("address", "Purok 1")
+                        .param("residencyYears", "-1").param("residencyMonths", "0"))
+                .andExpect(view().name("resident/step2"));
+
+        // Browser Back to Review, then Get ticket: step 2 again with its errors, no crash, no ticket.
+        mvc.perform(get("/request/review").session(session))
+                .andExpect(status().isOk()).andExpect(view().name("resident/step2"))
+                .andExpect(content().string(containsString("Enter an age from 1 to 130")));
+        mvc.perform(post("/request/review").session(session).with(csrf()))
+                .andExpect(status().isOk()).andExpect(view().name("resident/step2"))
+                .andExpect(cookie().doesNotExist(ResidentPage.TICKET_COOKIE));
     }
 
     @Test

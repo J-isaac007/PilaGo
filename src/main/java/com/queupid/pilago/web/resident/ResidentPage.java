@@ -102,6 +102,7 @@ public class ResidentPage {
         List<Request> waiting = queue.getWaiting();
         model.addAttribute("nowServing", queue.getNowServing().map(Request::getTicketNumber).orElse("—"));
         model.addAttribute("waitingCount", waiting.size());
+        model.addAttribute("priorityCount", waiting.stream().filter(Request::isPriority).count());
         model.addAttribute("waitMinutes", estimateWaitForNewTicket(waiting));
         model.addAttribute("documents", DocumentType.values());
         model.addAttribute("feeRanges", feeRanges());
@@ -154,10 +155,14 @@ public class ResidentPage {
 
     // ── R4 · Review ──────────────────────────────────────────────────────
 
+    /**
+     * The form is validated again here and on submit: a failed step 2 still leaves its bad values in
+     * the session, and the browser's Back button can bring the resident straight back to this page.
+     */
     @GetMapping("/request/review")
-    public String review(@ModelAttribute("form") RequestForm form, Model model) {
-        if (!isComplete(form)) {
-            return form.getDocumentType() == null ? "redirect:/request/document" : "redirect:/request/details";
+    public String review(@Validated @ModelAttribute("form") RequestForm form, BindingResult result, Model model) {
+        if (result.hasErrors()) {
+            return stepToFix(result);
         }
         Resident preview = new Resident(form.getFullName(), form.getAge(), form.getAddress(),
                 form.getTotalResidencyMonths(), form.isPwd(), form.isHasPendingRecord());
@@ -175,10 +180,10 @@ public class ResidentPage {
     }
 
     @PostMapping("/request/review")
-    public String submit(@ModelAttribute("form") RequestForm form, SessionStatus session,
-            HttpServletResponse response, Model model) {
-        if (!isComplete(form)) {
-            return "redirect:/request/document";
+    public String submit(@Validated @ModelAttribute("form") RequestForm form, BindingResult result,
+            SessionStatus session, HttpServletResponse response, Model model) {
+        if (result.hasErrors()) {
+            return stepToFix(result);
         }
         try {
             Request ticket = queue.addRequest(form);
@@ -243,11 +248,12 @@ public class ResidentPage {
         return queue.getEstimatedWaitMinutes(last.getTicketNumber()) + last.getDocument().getProcessingTime();
     }
 
-    private static boolean isComplete(RequestForm form) {
-        return form.getDocumentType() != null && form.getPurpose() != null
-                && form.getFullName() != null && !form.getFullName().isBlank()
-                && form.getAge() != null && form.getAddress() != null && !form.getAddress().isBlank()
-                && form.getResidencyYears() != null && form.getResidencyMonths() != null;
+    /** An invalid form at review goes back to step 1, or shows step 2 with its errors. */
+    private static String stepToFix(BindingResult result) {
+        if (result.hasFieldErrors("documentType") || result.hasFieldErrors("purpose")) {
+            return "redirect:/request/document";
+        }
+        return "resident/step2";
     }
 
     private static void rememberTicket(HttpServletResponse response, Request ticket) {

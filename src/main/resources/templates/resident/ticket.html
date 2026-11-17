@@ -52,12 +52,31 @@
               </div>
               <p class="pg-secondary" th:if="${status.name() == 'WAITING'}"
                  th:text="${@bi.t('resident.ticket.wait', waitMinutes)}">About 12 min</p>
+
+              <!-- Status tracker (Figma "Status tracker"): done, current and upcoming steps -->
+              <ol class="pg-tracker" th:if="${currentStep >= 0}">
+                <li th:each="step, it : ${trackerSteps}"
+                    th:class="${it.index < currentStep} ? 'is-done' : (${it.index == currentStep} ? 'is-current' : '')"
+                    th:attr="aria-current=${it.index == currentStep} ? 'step' : null">
+                  <span class="pg-tracker__dot" aria-hidden="true"></span>
+                  <span class="pg-tracker__text">
+                    <b th:text="${@bi.t(step.messageKey)}">Waiting · Naghihintay</b>
+                    <span th:if="${it.index == currentStep}" th:text="${@bi.t('resident.tracker.' + step.cssModifier)}">Wait for your number to be called</span>
+                    <span th:if="${it.index < currentStep}" th:text="${@bi.t('resident.tracker.done')}">Done · Tapos</span>
+                  </span>
+                </li>
+              </ol>
               <th:block th:if="${ticket.holdReason != null}">
                 <p th:text="${@bi.en(ticket.holdReason.messageKey)}">Lived here less than 6 months.</p>
                 <p class="pg-secondary" lang="fil" th:text="${@bi.fil(ticket.holdReason.messageKey)}">Wala pang 6 na buwan.</p>
                 <p class="pg-secondary" th:if="${ticket.holdNote != null}" th:text="${ticket.holdNote}">Note</p>
               </th:block>
             </section>
+
+            <div class="pg-banner" th:if="${status.name() == 'WAITING'}">
+              <b th:text="${@bi.t('resident.ticket.called-banner')}">When called, go to the counter · Pumunta sa counter kapag tinawag</b>
+              <span th:text="${@bi.t('resident.ticket.called-banner.note')}">If you are not there when called, your ticket is skipped.</span>
+            </div>
 
             <div class="pg-feebox" th:unless="${ticket.free}">
               <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter · Bayad sa counter</b>
