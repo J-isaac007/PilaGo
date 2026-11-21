@@ -25,6 +25,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 
 /**
  * One ticket: links a resident to a document and tracks it from Waiting to Released.
@@ -34,7 +35,8 @@ import jakarta.persistence.Transient;
  * through {@link #markAsPaid}.
  */
 @Entity
-@Table(name = "request")
+@Table(name = "document_request",
+        uniqueConstraints = @UniqueConstraint(name = "uk_ticket_per_day", columnNames = { "ticket_date", "ticket_number" }))
 public class Request implements Payable {
 
     @Id
@@ -46,10 +48,10 @@ public class Request implements Payable {
     private UUID token;
 
     /** e.g. {@code S-004}. Unique per day only. */
-    @Column(nullable = false)
+    @Column(name = "ticket_number", nullable = false)
     private String ticketNumber;
 
-    @Column(nullable = false)
+    @Column(name = "ticket_date", nullable = false)
     private LocalDate ticketDate;
 
     /** The shared daily counter behind the ticket number (4 in S-004). */

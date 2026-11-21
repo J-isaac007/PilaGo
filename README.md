@@ -15,6 +15,8 @@ Team Queupid · CS-2101 · OOP 101 · Batangas State University
 
 Open http://localhost:8080. Dev staff logins: `SEC-001` / `secretary123`, `CAP-001` / `captain123`. The H2 console is at `/h2-console` (JDBC URL `jdbc:h2:file:./data/pilago`).
 
+Tickets are saved in `./data/` (git-ignored), so they survive a restart. On a new day the dev profile fills the empty queue with the Figma sample day. To start over, stop the app and delete the `data/` folder.
+
 Run the tests:
 
 ```bash
@@ -43,7 +45,16 @@ class ResidentPage {
 }
 ```
 
-Today Spring injects `FakeRequestQueue`, which holds the same sample day as the Figma screens: C-003 now serving, P-005 next, S-004 waiting for signature, S-002 ready, C-007 on hold. It enforces every rule (priority, transitions, duplicates, holds) but saves nothing, so a restart brings the sample day back. The database-backed queue replaces it in week 4 without changing your code.
+Spring injects [`RequestQueueService`](src/main/java/com/queupid/pilago/service/RequestQueueService.java):
+
+- **In memory:** today's tickets are kept in `ArrayList`s, with seniors and PWD ahead of regular tickets.
+- **Saved right away:** every change is written through the [`RequestStorage`](src/main/java/com/queupid/pilago/storage/RequestStorage.java) interface.
+  - `JpaRequestStorage` saves to H2 on a laptop and to PostgreSQL on Render.
+  - The unit tests use `InMemoryRequestStorage` instead, so they need no database.
+- **After a restart:** the first call of the day reloads today from storage, and the ticket numbers continue from the last one.
+- **At midnight:** the queue starts empty and the numbers go back to 1.
+
+`SampleDay` fills an empty day with the same tickets as the Figma screens: C-003 now serving, P-005 next, S-004 waiting for signature, S-002 ready, C-007 on hold. It runs when `pilago.sample-data=true`, which is on in dev and off on Render.
 
 Useful model methods for templates:
 
@@ -56,6 +67,29 @@ Useful model methods for templates:
 ## Bilingual copy
 
 Every label is English and Filipino side by side, with no language switch. Each key has a pair: `status.waiting=Waiting` and `status.waiting.fil=Naghihintay`. Put your words in your own file (`messages_resident.properties` or `messages_staff.properties`). Shared words are in `messages.properties`. A test fails if a key is missing its `.fil` twin.
+
+## Deploy (Render + Neon)
+
+The app runs on [Render](https://render.com)'s free plan from the `Dockerfile`, with a free [Neon](https://neon.tech) PostgreSQL database. Both need an account, which the team lead creates. Secrets are typed into Render and never committed.
+
+1. **Neon:** create a project in the Singapore region. Neon shows a connection string like:
+
+   ```
+   postgresql://USER:PASSWORD@ep-xxxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+   ```
+
+   Split it into three values for Render:
+   - `DATABASE_URL` = `jdbc:postgresql://ep-xxxx.ap-southeast-1.aws.neon.tech/neondb?sslmode=require`
+   - `DATABASE_USERNAME` = `USER`
+   - `DATABASE_PASSWORD` = `PASSWORD`
+2. **Render:** choose New → Blueprint, pick this repository, and Render reads `render.yaml`. Fill in:
+   - the three database values
+   - `SECRETARY_PASSWORD` and `CAPTAIN_PASSWORD`: the first staff passwords, choose strong ones
+   - `PILAGO_PUBLIC_URL`: the Render address, shown on the TV board
+3. **Wait for the first build** (about 5–10 minutes). The tables are created on first start, and so are the staff accounts `SEC-001` and `CAP-001`.
+4. **Check it:** open the Render link on a phone and run the full flow: get a ticket → secretary calls, takes payment and forwards → captain signs → secretary releases.
+
+Every merge to `main` deploys again. The free plan sleeps after 15 minutes without visits, so the first visit after a while takes about a minute. The TV board's refresh keeps it awake during office hours.
 
 ## How we work
 

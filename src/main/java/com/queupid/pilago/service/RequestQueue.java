@@ -14,9 +14,9 @@ import com.queupid.pilago.model.request.Request;
 /**
  * THE CONTRACT between Part 1 (queue engine) and Parts 2 and 3 (pages).
  *
- * <p>Controllers depend on this interface only, never on an implementation. Until the real queue
- * lands, Spring injects {@link FakeRequestQueue}. Don't rename or remove methods without telling
- * the team; adding methods is fine.
+ * <p>Controllers depend on this interface only, never on an implementation. Spring injects
+ * {@link RequestQueueService}, which saves every change through {@code RequestStorage}.
+ * Don't rename or remove methods without telling the team; adding methods is fine.
  *
  * <p>Ticket arguments are today's ticket numbers, e.g. {@code "S-004"}. Every method that takes one
  * throws {@link TicketNotFoundException} if no such ticket exists today, and
