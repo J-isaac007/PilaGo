@@ -20,9 +20,14 @@ public class Resident extends Person {
     /** Residents who lived in the barangay for less than this are put on hold. */
     public static final int MIN_RESIDENCY_MONTHS = 6;
 
-    private int residencyMonths;
-    private boolean pwd;
-    private boolean hasPendingRecord;
+    /*
+     * Wrapper types on purpose: all people share one table, and staff rows leave these columns empty.
+     * With int/boolean, Hibernate adds a table check rule that H2 rejects for every resident insert.
+     * The getters below still return plain int/boolean, so the rest of the code never sees a null.
+     */
+    private Integer residencyMonths;
+    private Boolean pwd;
+    private Boolean hasPendingRecord;
 
     /** For JPA only. */
     protected Resident() {
@@ -49,7 +54,7 @@ public class Resident extends Person {
         if (isSenior()) {
             return PriorityGroup.SENIOR;
         }
-        return pwd ? PriorityGroup.PWD : PriorityGroup.REGULAR;
+        return isPwd() ? PriorityGroup.PWD : PriorityGroup.REGULAR;
     }
 
     /**
@@ -59,16 +64,16 @@ public class Resident extends Person {
      *         pending barangay record. The request is then put on hold for the secretary to check.
      */
     public void checkResidency() throws NotAResidentException {
-        if (residencyMonths < MIN_RESIDENCY_MONTHS) {
+        if (getResidencyMonths() < MIN_RESIDENCY_MONTHS) {
             throw new NotAResidentException(HoldReason.SHORT_RESIDENCY);
         }
-        if (hasPendingRecord) {
+        if (hasPendingRecord()) {
             throw new NotAResidentException(HoldReason.PENDING_RECORD);
         }
     }
 
     public int getResidencyMonths() {
-        return residencyMonths;
+        return residencyMonths == null ? 0 : residencyMonths;
     }
 
     public void setResidencyMonths(int residencyMonths) {
@@ -80,16 +85,16 @@ public class Resident extends Person {
 
     /** Whole years of residency, for display ("3 yrs 4 mos"). */
     public int getResidencyYearsPart() {
-        return residencyMonths / 12;
+        return getResidencyMonths() / 12;
     }
 
     /** Leftover months after whole years, for display. */
     public int getResidencyMonthsPart() {
-        return residencyMonths % 12;
+        return getResidencyMonths() % 12;
     }
 
     public boolean isPwd() {
-        return pwd;
+        return Boolean.TRUE.equals(pwd);
     }
 
     public void setPwd(boolean pwd) {
@@ -97,7 +102,7 @@ public class Resident extends Person {
     }
 
     public boolean hasPendingRecord() {
-        return hasPendingRecord;
+        return Boolean.TRUE.equals(hasPendingRecord);
     }
 
     public void setHasPendingRecord(boolean hasPendingRecord) {

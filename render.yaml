@@ -1,0 +1,31 @@
+# Render Blueprint: on Render choose New → Blueprint and pick this repository.
+# Secrets are marked "sync: false": Render asks for them once and they never go into git.
+services:
+  - type: web
+    name: pilago
+    runtime: docker
+    plan: free
+    region: singapore
+    branch: main
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      # Neon Postgres, in JDBC form: jdbc:postgresql://<host>/<database>?sslmode=require
+      - key: DATABASE_URL
+        sync: false
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      # Passwords for the first staff accounts (SEC-001 and CAP-001), used only when they are created
+      - key: SECRETARY_PASSWORD
+        sync: false
+      - key: CAPTAIN_PASSWORD
+        sync: false
+      # The link printed on the TV board, e.g. pilago-sanisidro.onrender.com
+      - key: PILAGO_PUBLIC_URL
+        sync: false
+      # "true" fills an empty day with the Figma sample tickets (for a demo)
+      - key: PILAGO_SAMPLE_DATA
+        value: "false"

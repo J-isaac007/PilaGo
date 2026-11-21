@@ -20,8 +20,9 @@ import com.queupid.pilago.model.document.Purpose;
 import com.queupid.pilago.model.request.HoldReason;
 import com.queupid.pilago.model.request.Request;
 import com.queupid.pilago.model.request.RequestStatus;
+import com.queupid.pilago.storage.InMemoryRequestStorage;
 
-class FakeRequestQueueTest {
+class RequestQueueServiceTest {
 
     /** A clock the test can move forward. */
     static final class TestClock extends Clock {
@@ -48,7 +49,8 @@ class FakeRequestQueueTest {
     }
 
     private final TestClock clock = new TestClock();
-    private final FakeRequestQueue queue = new FakeRequestQueue(clock, false);
+    private final InMemoryRequestStorage storage = new InMemoryRequestStorage();
+    private final RequestQueueService queue = new RequestQueueService(clock, storage);
 
     private Request add(String name, int age, boolean pwd) {
         return queue.addRequest(new RequestForm(DocumentType.CERTIFICATE_OF_RESIDENCY, Purpose.SCHOOL,
@@ -135,13 +137,53 @@ class FakeRequestQueueTest {
 
     @Test
     void sampleDayMatchesFigma() {
-        FakeRequestQueue sample = new FakeRequestQueue(clock);
-        assertThat(sample.getNowServing()).get().extracting(Request::getTicketNumber).isEqualTo("C-003");
-        assertThat(sample.getWaiting()).extracting(Request::getTicketNumber)
+        assertThat(new SampleDay(queue).load()).isTrue();
+        assertThat(queue.getNowServing()).get().extracting(Request::getTicketNumber).isEqualTo("C-003");
+        assertThat(queue.getWaiting()).extracting(Request::getTicketNumber)
                 .containsExactly("P-005", "S-008", "C-006", "C-009");
-        assertThat(sample.getForSignature()).extracting(Request::getTicketNumber).containsExactly("S-004");
-        assertThat(sample.getReady()).extracting(Request::getTicketNumber).containsExactly("S-002");
-        assertThat(sample.getOnHold()).extracting(Request::getTicketNumber).containsExactly("C-007");
-        assertThat(sample.getDailySummary().getFeesCollected()).isEqualByComparingTo("100.00");
+        assertThat(queue.getForSignature()).extracting(Request::getTicketNumber).containsExactly("S-004");
+        assertThat(queue.getReady()).extracting(Request::getTicketNumber).containsExactly("S-002");
+        assertThat(queue.getOnHold()).extracting(Request::getTicketNumber).containsExactly("C-007");
+        assertThat(queue.getDailySummary().getFeesCollected()).isEqualByComparingTo("100.00");
+        assertThat(new SampleDay(queue).load()).as("only fills an empty day").isFalse();
+    }
+
+    @Test
+    void restartReloadsTheDayFromStorage() {
+        new SampleDay(queue).load();
+        queue.verify("C-007"); // back in line between C-006 and C-009 (by ticket number)
+
+        // a "restart": a brand-new queue on the same storage
+        RequestQueueService restarted = new RequestQueueService(clock, storage);
+        assertThat(restarted.getNowServing()).get().extracting(Request::getTicketNumber).isEqualTo("C-003");
+        assertThat(restarted.getWaiting()).extracting(Request::getTicketNumber)
+                .containsExactly("P-005", "S-008", "C-006", "C-007", "C-009");
+        assertThat(restarted.getForSignature()).extracting(Request::getTicketNumber).containsExactly("S-004");
+        assertThat(restarted.getDailySummary().getTotalRequests()).isEqualTo(9);
+        assertThatThrownBy(restarted::callNext).as("C-003 is still at the counter").isInstanceOf(QueueBusyException.class);
+
+        // numbering continues after the restart: the next ticket is number 10
+        Request next = restarted.addRequest(new RequestForm(DocumentType.CERTIFICATE_OF_INDIGENCY, Purpose.MEDICAL,
+                "Lim, Rosa", 70, "Alangilan", 5, 0, false, false));
+        assertThat(next.getTicketNumber()).isEqualTo("S-010");
+        assertThat(storage.lastSequence(next.getTicketDate())).isEqualTo(10);
+    }
+
+    @Test
+    void everyChangeIsSaved() {
+        add("A", 30, false);
+        queue.callNext();
+        RequestQueueService restarted = new RequestQueueService(clock, storage);
+        assertThat(restarted.findByTicket("C-001")).get().extracting(Request::getStatus)
+                .isEqualTo(RequestStatus.PROCESSING);
+    }
+
+    @Test
+    void afterMidnightTheNewDayStartsEmptyAtOne() {
+        new SampleDay(queue).load();
+        clock.plusDays(1);
+        assertThat(queue.getAllToday()).isEmpty();
+        assertThat(queue.getNowServing()).isEmpty();
+        assertThat(add("A", 30, false).getTicketNumber()).isEqualTo("C-001");
     }
 }

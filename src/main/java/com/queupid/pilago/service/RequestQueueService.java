@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.queupid.pilago.exception.DuplicateRequestException;
@@ -20,25 +19,33 @@ import com.queupid.pilago.exception.NotAResidentException;
 import com.queupid.pilago.exception.QueueBusyException;
 import com.queupid.pilago.exception.TicketNotFoundException;
 import com.queupid.pilago.model.document.DocumentType;
-import com.queupid.pilago.model.document.Purpose;
 import com.queupid.pilago.model.person.Resident;
 import com.queupid.pilago.model.request.HoldReason;
 import com.queupid.pilago.model.request.Request;
 import com.queupid.pilago.model.request.RequestStatus;
+import com.queupid.pilago.storage.RequestStorage;
 
 /**
- * In-memory queue with sample tickets that match the Figma screens (Now serving C-003, S-004 for
- * signature, P-005 next in line…). It follows every rule of the contract, but nothing is saved:
- * a restart brings back the sample day.
+ * The queue engine. Today's tickets live in {@code ArrayList}s in memory (fast, and the order of the
+ * waiting line is easy to see), and every change is written to {@link RequestStorage} right away, so
+ * nothing is lost when the app restarts.
  *
- * <p>Parts 2 and 3 build their pages against this until the real, database-backed queue replaces it
- * in week 4. Then this class stays for tests only.
+ * <ul>
+ *   <li><b>Priority line:</b> seniors and PWD go ahead of regular tickets; inside each tier it is first
+ *       come, first served ({@link #insertInLine}).</li>
+ *   <li><b>Ticket numbers:</b> one shared counter per day ({@code S-004}, {@code P-005}, {@code C-006}).
+ *       After a restart it continues from the highest number saved today; at midnight it starts at 1.</li>
+ *   <li><b>Reload:</b> the first call of a day loads that day's tickets from storage and rebuilds the
+ *       waiting line and Now serving.</li>
+ *   <li><b>Thread safety:</b> every public method is {@code synchronized}, so two staff browsers can't
+ *       call the same ticket twice.</li>
+ * </ul>
  */
 @Service
-public class FakeRequestQueue implements RequestQueue {
+public class RequestQueueService implements RequestQueue {
 
     private final Clock clock;
-    private final boolean withSampleData;
+    private final RequestStorage storage;
 
     /** Every ticket issued today, in the order issued. */
     private final List<Request> today = new ArrayList<>();
@@ -50,16 +57,9 @@ public class FakeRequestQueue implements RequestQueue {
     private LocalDate currentDay;
     private int lastSequence;
 
-    @Autowired
-    public FakeRequestQueue(Clock clock) {
-        this(clock, true);
-    }
-
-    /** {@code withSampleData = false} starts an empty day, for tests. */
-    public FakeRequestQueue(Clock clock, boolean withSampleData) {
+    public RequestQueueService(Clock clock, RequestStorage storage) {
         this.clock = clock;
-        this.withSampleData = withSampleData;
-        startNewDay();
+        this.storage = storage;
     }
 
     // ── Resident ─────────────────────────────────────────────────────────
@@ -79,14 +79,14 @@ public class FakeRequestQueue implements RequestQueue {
 
         Request request = new Request(resident, form.getDocumentType(), form.getPurpose(),
                 currentDay, ++lastSequence, now());
-        today.add(request);
-
         try {
             resident.checkResidency();
             insertInLine(request);
         } catch (NotAResidentException e) {
             request.putOnHold(e.getReason(), null, now());
         }
+        storage.save(request);
+        today.add(request);
         return request;
     }
 
@@ -129,9 +129,11 @@ public class FakeRequestQueue implements RequestQueue {
             nowServing = null;
             return Optional.empty();
         }
-        Request next = waitingRequests.remove(0);
+        Request next = waitingRequests.get(0);
         next.updateStatus(RequestStatus.PROCESSING, now());
+        waitingRequests.remove(0);
         nowServing = next;
+        storage.save(next);
         return Optional.of(next);
     }
 
@@ -140,6 +142,7 @@ public class FakeRequestQueue implements RequestQueue {
         Request request = require(ticket);
         request.updateStatus(RequestStatus.NO_SHOW, now());
         leaveLineAndCounter(request);
+        storage.save(request);
     }
 
     @Override
@@ -150,6 +153,7 @@ public class FakeRequestQueue implements RequestQueue {
                     "payment is recorded while the ticket is at the counter");
         }
         request.markAsPaid(now());
+        storage.save(request);
     }
 
     @Override
@@ -157,6 +161,7 @@ public class FakeRequestQueue implements RequestQueue {
         Request request = require(ticket);
         request.updateStatus(RequestStatus.FOR_SIGNATURE, now());
         leaveLineAndCounter(request);
+        storage.save(request);
     }
 
     @Override
@@ -164,6 +169,7 @@ public class FakeRequestQueue implements RequestQueue {
         Request request = require(ticket);
         request.putOnHold(reason, note, now());
         leaveLineAndCounter(request);
+        storage.save(request);
     }
 
     @Override
@@ -175,18 +181,23 @@ public class FakeRequestQueue implements RequestQueue {
         }
         request.updateStatus(RequestStatus.WAITING, now());
         insertInLine(request);
+        storage.save(request);
     }
 
     @Override
     public synchronized void release(String ticket) {
-        require(ticket).updateStatus(RequestStatus.RELEASED, now());
+        Request request = require(ticket);
+        request.updateStatus(RequestStatus.RELEASED, now());
+        storage.save(request);
     }
 
     // ── Captain ──────────────────────────────────────────────────────────
 
     @Override
     public synchronized void sign(String ticket) {
-        require(ticket).updateStatus(RequestStatus.READY, now());
+        Request request = require(ticket);
+        request.updateStatus(RequestStatus.READY, now());
+        storage.save(request);
     }
 
     // ── Lists and lookups ────────────────────────────────────────────────
@@ -307,57 +318,33 @@ public class FakeRequestQueue implements RequestQueue {
         return LocalDateTime.now(clock);
     }
 
-    /** Ticket numbers restart at 1 every day. */
+    /** The first call of a new day (including the first call after a restart) loads that day. */
     private void rollOverIfNewDay() {
-        if (!LocalDate.now(clock).equals(currentDay)) {
-            startNewDay();
+        LocalDate date = LocalDate.now(clock);
+        if (!date.equals(currentDay)) {
+            load(date);
         }
     }
 
-    private void startNewDay() {
+    /** Rebuilds today's lists from storage: the waiting line in priority order, and Now serving. */
+    private void load(LocalDate date) {
         today.clear();
         waitingRequests.clear();
         nowServing = null;
-        lastSequence = 0;
-        currentDay = LocalDate.now(clock);
-        if (withSampleData) {
-            loadSampleDay();
+        currentDay = date;
+        for (Request r : storage.findByDate(date)) {
+            today.add(r);
+            if (r.getStatus() == RequestStatus.WAITING) {
+                insertInLine(r);
+            } else if (r.getStatus() == RequestStatus.PROCESSING
+                    && (nowServing == null || isAfter(r.getCalledAt(), nowServing.getCalledAt()))) {
+                nowServing = r;
+            }
         }
+        lastSequence = storage.lastSequence(date);
     }
 
-    /** The same tickets the Figma screens show. */
-    private void loadSampleDay() {
-        Request c001 = sample("Aquino, Pedro T.", 34, false, DocumentType.BARANGAY_CLEARANCE, Purpose.EMPLOYMENT, 48);
-        Request s002 = sample("Torres, Felipe G.", 67, false, DocumentType.CERTIFICATE_OF_RESIDENCY, Purpose.GOVERNMENT_ID, 240);
-        Request c003 = sample("Dela Cruz, Juan P.", 29, false, DocumentType.CERTIFICATE_OF_INDIGENCY, Purpose.SCHOOL, 120);
-        Request s004 = sample("Bautista, Remedios A.", 72, false, DocumentType.BARANGAY_CLEARANCE, Purpose.EMPLOYMENT, 360);
-        sample("Villanueva, Carlo D.", 41, true, DocumentType.CERTIFICATE_OF_RESIDENCY, Purpose.MEDICAL, 96);
-        sample("Reyes, Ana M.", 23, false, DocumentType.BARANGAY_CLEARANCE, Purpose.EMPLOYMENT, 60);
-        sample("Santos, Mark L.", 31, false, DocumentType.CERTIFICATE_OF_RESIDENCY, Purpose.SCHOOL, 4);
-        sample("Mendoza, Lourdes C.", 64, false, DocumentType.CERTIFICATE_OF_INDIGENCY, Purpose.MEDICAL, 300);
-        sample("Garcia, Liza R.", 38, false, DocumentType.BARANGAY_CLEARANCE, Purpose.OTHER, 84);
-
-        walk(c001, true, RequestStatus.FOR_SIGNATURE, RequestStatus.READY, RequestStatus.RELEASED);
-        walk(s002, false, RequestStatus.FOR_SIGNATURE, RequestStatus.READY);
-        walk(s004, true, RequestStatus.FOR_SIGNATURE);
-        walk(c003, false);
-        nowServing = c003;
-    }
-
-    private Request sample(String name, int age, boolean pwd, DocumentType type, Purpose purpose, int residencyMonths) {
-        return addRequest(new RequestForm(type, purpose, name, age, "Brgy. Alangilan, Batangas City",
-                residencyMonths / 12, residencyMonths % 12, pwd, false));
-    }
-
-    /** Moves a sample ticket from WAITING through the given statuses. */
-    private void walk(Request request, boolean pay, RequestStatus... statuses) {
-        waitingRequests.remove(request);
-        request.updateStatus(RequestStatus.PROCESSING, now());
-        if (pay) {
-            request.markAsPaid(now());
-        }
-        for (RequestStatus status : statuses) {
-            request.updateStatus(status, now());
-        }
+    private static boolean isAfter(LocalDateTime a, LocalDateTime b) {
+        return a != null && (b == null || a.isAfter(b));
     }
 }
