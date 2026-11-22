@@ -18,6 +18,7 @@ public class LoginPage {
 
     @GetMapping("/login")
     public String login(@RequestParam(required = false) String error, @RequestParam(required = false) String logout,
+            @RequestParam(required = false) String locked,
             Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
             boolean captain = auth.getAuthorities().stream()
@@ -25,6 +26,7 @@ public class LoginPage {
             return captain ? "redirect:/captain" : "redirect:/staff";
         }
         model.addAttribute("loginError", error != null);
+        model.addAttribute("locked", locked != null);
         model.addAttribute("loggedOut", logout != null);
         return "auth/login";
     }
