@@ -151,6 +151,7 @@
             <p th:text="${@bi.t('staff.summary.wait.note', summary.priorityAverageWait)}">Priority avg 6 min</p>
           </dl>
           <button class="pg-btn pg-btn--secondary" type="button" onclick="window.print()" th:text="${@bi.t('staff.summary.print')}">Print summary</button>
+          <a class="pg-btn pg-btn--secondary" th:href="@{/staff/report.csv}" th:text="${@bi.t('staff.summary.download')}">Download report · I-download</a>
         </aside>
 
         <!-- Skip confirm (only while someone is at the counter) -->
