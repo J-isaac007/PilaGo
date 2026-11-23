@@ -56,6 +56,8 @@ class PersonTest {
         assertThat(new BarangayCaptain("Cap", 50, "Hall", "CAP-001", "h").canPerform(StaffAction.SIGN)).isTrue();
         assertThat(new BarangaySecretary("Sec", 35, "Hall", "SEC-001", "h").canPerform(StaffAction.SIGN)).isFalse();
         assertThat(new BarangaySecretary("Sec", 35, "Hall", "SEC-001", "h").canPerform(StaffAction.RELEASE)).isTrue();
+        assertThat(new BarangayCaptain("Cap", 50, "Hall", "CAP-001", "h").canPerform(StaffAction.RETURN_TO_SECRETARY)).isTrue();
+        assertThat(new BarangaySecretary("Sec", 35, "Hall", "SEC-001", "h").canPerform(StaffAction.RETURN_TO_SECRETARY)).isFalse();
     }
 
     @Test

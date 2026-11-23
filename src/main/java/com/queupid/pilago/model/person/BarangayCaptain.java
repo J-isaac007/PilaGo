@@ -14,6 +14,7 @@ public class BarangayCaptain extends StaffMember {
     private static final Set<StaffAction> ALLOWED = EnumSet.of(
             StaffAction.VIEW_FOR_SIGNATURE,
             StaffAction.SIGN,
+            StaffAction.RETURN_TO_SECRETARY,
             StaffAction.VIEW_DAILY_SUMMARY);
 
     /** For JPA only. */

@@ -10,12 +10,12 @@
         <div class="st-main">
           <div class="st-sign-head">
             <div>
-              <h1 th:text="${@bi.t('status.for-signature')}">For signature · Para sa pirma</h1>
+              <h1 th:text="${@bi.t('status.for-signature')}">For signature</h1>
               <p class="pg-secondary" th:unless="${requests.isEmpty()}"
                  th:text="${@bi.t('captain.count', requests.size())}">4 requests ready to sign</p>
             </div>
             <form th:if="${requests.size() > 1}" th:action="@{/captain/sign-all}" method="post">
-              <button class="pg-btn pg-btn--secondary" type="submit" th:text="${@bi.t('captain.sign-all', requests.size())}">Sign all (4) · Pirmahan lahat</button>
+              <button class="pg-btn pg-btn--secondary" type="submit" th:text="${@bi.t('captain.sign-all', requests.size())}">Sign all (4)</button>
             </form>
           </div>
 
@@ -32,13 +32,13 @@
               </div>
               <div class="st-item__who">
                 <b th:text="${r.resident.name}">Ramos, Lourdes P.</b>
-                <span class="pg-secondary" th:text="${@bi.en(r.documentType.messageKey)} + ' · ' + ${@bi.t(r.purpose.messageKey)}">Certificate of Indigency · Medical</span>
+                <span class="pg-secondary" th:text="${@bi.t(r.documentType.messageKey)} + ' · ' + ${@bi.t(r.purpose.messageKey)}">Certificate of Indigency · Medical</span>
               </div>
-              <span class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free · Libre</span>
+              <span class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free</span>
               <div class="st-actions">
-                <a class="pg-btn pg-btn--secondary" th:href="@{/captain(view=${r.ticketNumber})}" th:text="${@bi.t('captain.view')}">View · Tingnan</a>
+                <a class="pg-btn pg-btn--secondary" th:href="@{/captain(view=${r.ticketNumber})}" th:text="${@bi.t('captain.view')}">View</a>
                 <form th:action="@{/captain/sign/{t}(t=${r.ticketNumber})}" method="post">
-                  <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('captain.sign')}">Sign · Pirmahan</button>
+                  <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('captain.sign')}">Sign</button>
                 </form>
               </div>
             </article>
@@ -48,7 +48,7 @@
         <!-- Details panel -->
         <aside class="st-card st-detail" th:if="${selected != null}" th:with="r=${selected}, p=${selected.resident}">
           <div class="st-detail__head">
-            <h2 th:text="${@bi.t('captain.details', r.ticketNumber)}">S-004 details · Detalye</h2>
+            <h2 th:text="${@bi.t('captain.details', r.ticketNumber)}">S-004 details</h2>
             <a class="st-close" th:href="@{/captain}" th:attr="aria-label=${r.ticketNumber}">×</a>
           </div>
           <dl class="st-dl">
@@ -57,12 +57,12 @@
             <div><dt th:text="${@bi.t('resident.field.address')}">Address</dt><dd th:text="${p.address}">8 Luna St.</dd></div>
             <div><dt th:text="${@bi.t('resident.review.lived')}">Lived here</dt>
               <dd th:text="${@bi.t('resident.review.lived.value', p.residencyYearsPart, p.residencyMonthsPart)}">22 years</dd></div>
-            <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.en(r.documentType.messageKey)}">Certificate of Indigency</dd></div>
+            <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.t(r.documentType.messageKey)}">Certificate of Indigency</dd></div>
             <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(r.purpose.messageKey)}">Medical</dd></div>
-            <div><dt th:text="${@bi.t('resident.review.fee')}">Fee</dt><dd class="pg-fee" th:text="${@bi.fee(r.fee)}">Free · Libre</dd></div>
+            <div><dt th:text="${@bi.t('resident.review.fee')}">Fee</dt><dd class="pg-fee" th:text="${@bi.fee(r.fee)}">Free</dd></div>
           </dl>
           <form th:action="@{/captain/sign/{t}(t=${r.ticketNumber})}" method="post">
-            <button class="pg-btn pg-btn--lg pg-btn--accent pg-btn--block" type="submit" th:text="${@bi.t('captain.sign')}">Sign · Pirmahan</button>
+            <button class="pg-btn pg-btn--lg pg-btn--accent pg-btn--block" type="submit" th:text="${@bi.t('captain.sign')}">Sign</button>
           </form>
           <p class="pg-muted" th:text="${@bi.t('captain.sign.note')}">Signing marks it Ready</p>
         </aside>

@@ -35,7 +35,7 @@ class StaffRolesTest {
         mvc.perform(get("/staff")).andExpect(redirectedUrl("/login"));
         mvc.perform(get("/captain")).andExpect(redirectedUrl("/login"));
         mvc.perform(get("/login")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Staff login · Pag-login ng kawani")));
+                .andExpect(content().string(containsString("Staff login")));
         mvc.perform(get("/")).andExpect(status().isOk());
         mvc.perform(get("/display")).andExpect(status().isOk());
     }
@@ -43,12 +43,12 @@ class StaffRolesTest {
     @Test
     void eachRoleSeesOnlyItsOwnPages() throws Exception {
         mvc.perform(get("/staff").with(SECRETARY)).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Call next · Tawagin")))
+                .andExpect(content().string(containsString("Call next")))
                 .andExpect(content().string(containsString("Maria Santos")));
         mvc.perform(get("/captain").with(SECRETARY)).andExpect(status().isForbidden());
 
         mvc.perform(get("/captain").with(CAPTAIN)).andExpect(status().isOk())
-                .andExpect(content().string(containsString("For signature · Para sa pirma")));
+                .andExpect(content().string(containsString("For signature")));
         mvc.perform(get("/staff").with(CAPTAIN)).andExpect(status().isForbidden());
         mvc.perform(post("/staff/call-next").with(CAPTAIN).with(csrf())).andExpect(status().isForbidden());
     }
@@ -71,7 +71,7 @@ class StaffRolesTest {
                 .andExpect(flash().attribute("toastError", containsString("Finish the ticket at the counter first")));
 
         mvc.perform(get("/staff/request/C-003").with(SECRETARY)).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Forward to Captain · Ipasa sa Kapitan")));
+                .andExpect(content().string(containsString("Forward to Captain")));
         mvc.perform(post("/staff/request/C-003/forward").with(SECRETARY).with(csrf()))
                 .andExpect(redirectedUrl("/staff"))
                 .andExpect(flash().attribute("toast", containsString("C-003 sent to the captain")));

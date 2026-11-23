@@ -8,7 +8,7 @@
     <main class="st-login">
       <form class="st-login__card" th:action="@{/login}" method="post">
         <div>
-          <h1 class="pg-h2" th:text="${@bi.t('auth.title')}">Staff login · Pag-login ng kawani</h1>
+          <h1 class="pg-h2" th:text="${@bi.t('auth.title')}">Staff login</h1>
           <p class="pg-secondary" th:text="${@bi.t('auth.subtitle')}">For the secretary and captain only</p>
         </div>
 
@@ -17,7 +17,7 @@
         <p class="pg-callout" role="status" th:if="${loggedOut}" th:text="${@bi.t('auth.logged-out')}">You are logged out.</p>
 
         <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('auth.staff-id')}">Staff ID · ID ng kawani</span>
+          <span class="pg-field__label" th:text="${@bi.t('auth.staff-id')}">Staff ID</span>
           <input class="pg-input" type="text" name="staffId" autocomplete="username" autocapitalize="characters" placeholder="SEC-001" required autofocus />
         </label>
         <label class="pg-field">
@@ -25,8 +25,8 @@
           <input class="pg-input" type="password" name="password" autocomplete="current-password" required />
         </label>
 
-        <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('auth.login')}">Log in · Mag-login</button>
-        <a class="pg-link" th:href="@{/}" th:text="${@bi.t('cta.back')}">Back · Bumalik</a>
+        <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('auth.login')}">Log in</button>
+        <a class="pg-link" th:href="@{/}" th:text="${@bi.t('cta.back')}">Back</a>
       </form>
     </main>
   </body>

@@ -36,25 +36,23 @@ class PilaGoSystemTests {
         assertThat(staff.findByStaffIdIgnoreCase("CAP-001")).isPresent();
     }
 
-    /** Guards the bilingual rule: every English key has a Filipino twin, and the reverse. */
+    /** The app is English-only (matching Figma): no Filipino ".fil" keys, and no empty texts. */
     @ParameterizedTest
     @ValueSource(strings = {"messages", "messages_resident", "messages_staff"})
-    void everyMessageHasEnglishAndFilipino(String bundle) throws IOException {
+    void everyMessageIsEnglishOnlyAndFilledIn(String bundle) throws IOException {
         Properties props = new Properties();
         try (InputStream in = getClass().getResourceAsStream("/" + bundle + ".properties")) {
             assertThat(in).as(bundle).isNotNull();
             props.load(new InputStreamReader(in, StandardCharsets.UTF_8));
         }
-        List<String> missing = new ArrayList<>();
+        List<String> problems = new ArrayList<>();
         for (String key : props.stringPropertyNames()) {
-            if (key.startsWith("form.") || key.startsWith("typeMismatch")) {
-                continue; // validation messages are one bilingual string
-            }
-            String twin = key.endsWith(".fil") ? key.substring(0, key.length() - 4) : key + ".fil";
-            if (!props.containsKey(twin)) {
-                missing.add(twin);
+            if (key.endsWith(".fil")) {
+                problems.add(key + " (Filipino key)");
+            } else if (props.getProperty(key).isBlank()) {
+                problems.add(key + " (empty)");
             }
         }
-        assertThat(missing).as("missing keys in " + bundle).isEmpty();
+        assertThat(problems).as("problems in " + bundle).isEmpty();
     }
 }

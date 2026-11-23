@@ -11,11 +11,11 @@
         <div th:replace="~{fragments/shared :: tip('resident.step1.tip', '')}"></div>
 
         <fieldset class="pg-fieldset">
-          <legend class="pg-field__label" th:text="${@bi.t('resident.review.document')}">Document · Dokumento</legend>
+          <legend class="pg-field__label" th:text="${@bi.t('resident.review.document')}">Document</legend>
           <label class="pg-card pg-choice" th:each="d : ${documents}">
             <span th:replace="~{fragments/shared :: docIcon}"></span>
             <span class="pg-doc__text">
-              <b th:text="${@bi.en(d.messageKey)}">Barangay Clearance</b>
+              <b th:text="${@bi.t(d.messageKey)}">Barangay Clearance</b>
               <span class="pg-secondary" th:with="k=${'resident.doc.' + d.messageKey.substring(9)}"
                     th:text="${@bi.t(k)}">For jobs, school, loans</span>
               <span class="pg-fee" th:text="${feeRanges.get(d)}">₱0–50</span>
@@ -26,24 +26,24 @@
         </fieldset>
 
         <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.purpose')}">Purpose · Layunin</span>
+          <span class="pg-field__label" th:text="${@bi.t('resident.field.purpose')}">Purpose</span>
           <select class="pg-input" th:field="*{purpose}" th:classappend="${#fields.hasErrors('purpose')} ? 'is-invalid'">
             <option value="" th:text="'— ' + ${@bi.t('resident.field.purpose')} + ' —'">— Purpose —</option>
-            <option th:each="p : ${purposes}" th:value="${p.name()}" th:text="${@bi.t(p.messageKey)}">Employment · Trabaho</option>
+            <option th:each="p : ${purposes}" th:value="${p.name()}" th:text="${@bi.t(p.messageKey)}">Employment</option>
           </select>
           <span class="pg-error" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}">Choose a purpose</span>
         </label>
 
         <div class="pg-feebox">
           <div>
-            <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter · Bayad sa counter</b>
+            <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter</b>
             <p class="pg-muted" th:text="${@bi.t('resident.fee.note')}">Pay in person.</p>
           </div>
           <strong class="pg-feebox__amount" id="fee" aria-live="polite">—</strong>
         </div>
 
         <div class="pg-actions">
-          <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('cta.next')}">Next · Susunod</button>
+          <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('cta.next')}">Next</button>
         </div>
       </main>
     </form>

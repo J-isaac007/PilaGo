@@ -19,16 +19,16 @@
         </label>
 
         <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.age')}">Age · Edad</span>
+          <span class="pg-field__label" th:text="${@bi.t('resident.field.age')}">Age</span>
           <!-- Text, not number: letters are caught on the server and explained (see ResidentPage). -->
           <input class="pg-input" type="text" inputmode="numeric" th:field="*{age}" id="age" placeholder="64"
                  th:classappend="${#fields.hasErrors('age')} ? 'is-invalid'" />
           <span class="pg-error" th:if="${#fields.hasErrors('age')}" th:text="${#fields.errors('age')[0]}">Numbers only</span>
-          <span><span class="pg-tag pg-tag--senior" id="seniorTag" hidden th:text="${@bi.t('priority.senior')}">Senior 60+ · Nakatatanda</span></span>
+          <span><span class="pg-tag pg-tag--senior" id="seniorTag" hidden th:text="${@bi.t('priority.senior')}">Senior 60+</span></span>
         </label>
 
         <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.address')}">Address · Tirahan</span>
+          <span class="pg-field__label" th:text="${@bi.t('resident.field.address')}">Address</span>
           <input class="pg-input" type="text" th:field="*{address}" autocomplete="street-address" placeholder="123 Rizal St., Purok 4"
                  th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'" />
           <span class="pg-muted" th:text="${@bi.t('resident.field.address.hint')}">House no., street, purok</span>
@@ -39,12 +39,12 @@
           <legend class="pg-field__label" th:text="${@bi.t('resident.field.residency')}">How long have you lived here?</legend>
           <div class="pg-row2">
             <label class="pg-field">
-              <span class="pg-field__label" th:text="${@bi.t('resident.field.years')}">Years · Taon</span>
+              <span class="pg-field__label" th:text="${@bi.t('resident.field.years')}">Years</span>
               <input class="pg-input" type="number" min="0" max="130" inputmode="numeric" th:field="*{residencyYears}"
                      th:classappend="${#fields.hasErrors('residencyYears')} ? 'is-invalid'" />
             </label>
             <label class="pg-field">
-              <span class="pg-field__label" th:text="${@bi.t('resident.field.months')}">Months · Buwan</span>
+              <span class="pg-field__label" th:text="${@bi.t('resident.field.months')}">Months</span>
               <input class="pg-input" type="number" min="0" max="11" inputmode="numeric" th:field="*{residencyMonths}"
                      th:classappend="${#fields.hasErrors('residencyMonths')} ? 'is-invalid'" />
             </label>
@@ -57,21 +57,21 @@
         <label class="pg-card pg-check">
           <input type="checkbox" th:field="*{pwd}" />
           <span>
-            <b th:text="${@bi.t('resident.field.pwd')}">I am a PWD · Ako ay may kapansanan</b>
+            <b th:text="${@bi.t('resident.field.pwd')}">I am a PWD</b>
             <span class="pg-secondary" th:text="${@bi.t('resident.field.pwd.hint')}">Bring your PWD ID.</span>
           </span>
         </label>
         <label class="pg-card pg-check">
           <input type="checkbox" th:field="*{hasPendingRecord}" />
           <span>
-            <b th:text="${@bi.t('resident.field.record')}">Pending barangay record · May kaso sa barangay</b>
+            <b th:text="${@bi.t('resident.field.record')}">Pending barangay record</b>
             <span class="pg-secondary" th:text="${@bi.t('resident.field.record.hint')}">The secretary will check it first.</span>
           </span>
         </label>
 
         <div class="pg-actions">
-          <a class="pg-btn pg-btn--lg pg-btn--secondary" th:href="@{/request/document}" th:text="${@bi.t('cta.back')}">Back · Bumalik</a>
-          <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('resident.cta.review')}">Review · Suriin</button>
+          <a class="pg-btn pg-btn--lg pg-btn--secondary" th:href="@{/request/document}" th:text="${@bi.t('cta.back')}">Back</a>
+          <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('resident.cta.review')}">Review</button>
         </div>
       </main>
     </form>

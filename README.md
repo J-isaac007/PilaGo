@@ -64,9 +64,13 @@ Useful model methods for templates:
 - `request.holdReason.messageKey`, `request.holdNote`
 - `request.document.requirements` (message keys)
 
-## Bilingual copy
+## Page text
 
-Every label is English and Filipino side by side, with no language switch. Each key has a pair: `status.waiting=Waiting` and `status.waiting.fil=Naghihintay`. Put your words in your own file (`messages_resident.properties` or `messages_staff.properties`). Shared words are in `messages.properties`. A test fails if a key is missing its `.fil` twin.
+The app is English-only and matches the Figma (it was English and Filipino side by side until 2026-11-23). Every label lives in a messages file, for example `status.waiting=Waiting`, and templates print it with `${@bi.t('status.waiting')}`.
+
+- Put your words in your own file (`messages_resident.properties` or `messages_staff.properties`).
+- Shared words are in `messages.properties`.
+- A test fails if a text is empty or a Filipino `.fil` key comes back.
 
 ## Deploy (Render + Neon)
 

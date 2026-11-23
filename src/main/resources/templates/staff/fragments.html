@@ -25,14 +25,14 @@
       <div class="st-user">
         <span>
           <b th:text="${me.name}">Maria Santos</b>
-          <span th:text="${@bi.t('staff.role.' + #strings.toLowerCase(me.role))}">Barangay Secretary · Kalihim</span>
+          <span th:text="${@bi.t('staff.role.' + #strings.toLowerCase(me.role))}">Barangay Secretary</span>
         </span>
         <form th:action="@{/logout}" method="post">
           <button class="st-logout" type="submit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" />
             </svg>
-            <span th:text="${@bi.t('cta.logout')}">Log out · Lumabas</span>
+            <span th:text="${@bi.t('cta.logout')}">Log out</span>
           </button>
         </form>
       </div>

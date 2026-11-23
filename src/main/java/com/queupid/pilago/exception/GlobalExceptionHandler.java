@@ -17,7 +17,7 @@ import jakarta.servlet.http.HttpServletRequest;
 /**
  * Turns queue rule errors on the staff and captain pages into a red toast instead of an error page.
  * Example: pressing Call next while a ticket is still at the counter throws {@link QueueBusyException};
- * the secretary sees "Finish the ticket at the counter first · Tapusin muna…" and stays on the dashboard.
+ * the secretary sees "Finish the ticket at the counter first." and stays on the dashboard.
  *
  * <p>Anything else (wrong role, missing page, a bug) falls through to the bilingual error pages in
  * {@code templates/error/}.

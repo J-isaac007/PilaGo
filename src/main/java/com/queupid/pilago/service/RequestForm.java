@@ -15,7 +15,7 @@ import jakarta.validation.constraints.Size;
  *
  * <p>Residency is entered as years plus months; {@link #getTotalResidencyMonths()} adds them up.
  * Letters typed into a number field fail binding before validation runs, so the controller should
- * also check {@code BindingResult} for type mismatches (shown as "Numbers only · Numero lamang").
+ * also check {@code BindingResult} for type mismatches (shown as "Numbers only").
  */
 public class RequestForm {
 

@@ -165,7 +165,7 @@ public class StaffPage {
     @GetMapping("/report.csv")
     public ResponseEntity<byte[]> report(Principal principal) {
         current.require(principal, StaffAction.VIEW_DAILY_SUMMARY);
-        String csv = new ReportCsv(key -> bi.en(key)).render(queue.getAllToday());
+        String csv = new ReportCsv(key -> bi.t(key)).render(queue.getAllToday());
         String filename = "pilago-report-" + LocalDate.now(clock) + ".csv";
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
@@ -210,8 +210,7 @@ public class StaffPage {
                 : Duration.between(request.getCreatedAt(), request.getCalledAt()).toMinutes());
         model.addAttribute("canForward", request.getStatus() == RequestStatus.PROCESSING
                 && (request.isPaid() || request.isFree()));
-        model.addAttribute("holdReasons", List.of(HoldReason.MISSING_REQUIREMENT, HoldReason.SHORT_RESIDENCY,
-                HoldReason.PENDING_RECORD, HoldReason.OTHER));
+        model.addAttribute("holdReasons", HoldReason.secretaryReasons());
         return "staff/request";
     }
 

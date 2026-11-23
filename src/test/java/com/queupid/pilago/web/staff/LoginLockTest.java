@@ -75,6 +75,6 @@ class LoginLockTest {
     void lockedPageShowsTheBilingualMessage() throws Exception {
         mvc.perform(get("/login").param("locked", ""))
                 .andExpect(content().string(containsString(
-                        "Too many tries. Try again in 10 minutes · Masyadong maraming mali. Subukan ulit pagkalipas ng 10 minuto.")));
+                        "Too many tries. Try again in 10 minutes")));
     }
 }
