@@ -28,12 +28,11 @@
     const number = hero ? hero.textContent.trim() : null;
     const counterEl = panel.querySelector(".tv-counter-no");
     const counter = counterEl ? counterEl.textContent.trim() : "";
-
-    if (number === lastNumber) return;        // same number: do nothing
+    
+    if (firstCheck) { firstCheck = false; lastNumber = number; return; }
+    if (number === lastNumber) return;
     lastNumber = number;
-
-    if (firstCheck) { firstCheck = false; return; }   // page just loaded
-    if (!number) return;                               // board went empty
+    if (!number) return;                              // board went empty
 
     hero.classList.add("tv-hero--flash");
     if (soundOn) speak("Now serving " + spellOut(number) + ", Counter " + counter);

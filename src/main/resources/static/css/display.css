@@ -46,3 +46,4 @@ body.tv { height: 100vh; overflow: hidden; display: grid; grid-template-rows: au
             border: 2px solid currentColor; background: transparent; color: inherit; cursor: pointer; }
 .tv-sound--on { opacity: .6; }
 @media (prefers-reduced-motion: reduce) { .tv-hero--flash { animation: none; } }
+.tv-right { display: flex; align-items: center; gap: 1.5rem; }
