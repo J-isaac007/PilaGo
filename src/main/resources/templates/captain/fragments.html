@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <body>
+    <!-- S4B / S11b · Return to secretary: pick a reason, add a note (required for Other) -->
+    <dialog class="st-dialog" th:fragment="returnDialog(r, id)" th:id="${id}">
+      <form th:action="@{/captain/return/{t}(t=${r.ticketNumber})}" method="post">
+        <h2 th:text="${@bi.t('captain.return.title', r.ticketNumber)}">Return S-004 to the secretary?</h2>
+        <p th:text="${@bi.t('captain.return.body')}">The request goes back to the secretary.</p>
+        <label>
+          <span th:text="${@bi.t('staff.hold.reason')}">Reason</span>
+          <select class="pg-input" name="reason">
+            <option th:each="h : ${returnReasons}" th:value="${h.name()}" th:text="${@bi.t(h.labelKey)}">Wrong details</option>
+          </select>
+        </label>
+        <label>
+          <span th:text="${@bi.t('captain.return.note')}">Note for the secretary (required for Other)</span>
+          <textarea name="note" maxlength="200"></textarea>
+        </label>
+        <div class="st-actions">
+          <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel</button>
+          <button class="pg-btn pg-btn--primary" type="submit" th:text="${@bi.t('captain.return')}">Return to secretary</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>
