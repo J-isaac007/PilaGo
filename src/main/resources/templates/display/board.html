@@ -18,13 +18,18 @@
         <img th:src="@{/img/pilago-logo-192.png}" src="../../static/img/pilago-logo-192.png" alt="" />
         <div><b>PilaGo</b><small>Brgy. San Isidro</small></div>
       </div>
-      <div class="tv-clock"><b id="time">9:41 AM</b><small id="date">Tuesday, Nov 3, 2026</small></div>
+      <div class="tv-right">
+  <div class="tv-clock"><b id="time">9:41 AM</b><small id="date">Tuesday, Nov 3, 2026</small></div>
+  <button id="sound-btn" class="tv-sound" type="button" th:text="${@bi.t('display.sound-on')}">Turn on sound</button>
+  <span id="sound-done" style="display:none" th:text="${@bi.t('display.sound-done')}">Sound on</span>
+</div>
     </header>
 
     <!-- Polled every 3 s: only this fragment is re-rendered by GET /display/board -->
     <main class="tv-board" th:fragment="board" th:attr="hx-get=@{/display/board}" hx-trigger="every 3s" hx-swap="outerHTML">
-      <section class="tv-panel tv-serving" aria-live="polite">
-        <div class="tv-label" th:text="${@bi.t('display.now-serving')}">Now serving</div>
+     <section class="tv-panel tv-serving" aria-live="polite">
+  <span class="tv-counter-no" style="display:none" th:text="${board.counter}">1</span>
+  <div class="tv-label" th:text="${@bi.t('display.now-serving')}">Now serving</div>
         <div th:if="${board.nowServing != null}" class="tv-hero" th:text="${board.nowServing}">C-003</div>
         <div th:if="${board.nowServing == null}" class="tv-hero tv-hero--empty">—</div>
         <div th:if="${board.nowServing != null}" class="tv-counter"
@@ -36,7 +41,7 @@
       </section>
 
       <div class="tv-side">
-        <section class="tv-panel tv-waiting">
+       <section class="tv-panel tv-waiting">
           <div class="tv-label" th:text="${@bi.t('status.waiting')} + ' (' + ${board.waitingCount} + ')'">Waiting</div>
           <ul class="tv-list">
             <li th:each="t : ${board.waiting}">
@@ -61,7 +66,8 @@
         <span th:text="${@bi.t('display.footer.get')}">Get your ticket on your phone:</span>
         <span th:text="${publicUrl}">pilago-sanisidro.onrender.com</span></p>
     </footer>
-
+    
+    <script th:src="@{/js/board.js}" defer></script>
     <script>
       // Clock in Manila time (the server may run in UTC).
       function tick() {
