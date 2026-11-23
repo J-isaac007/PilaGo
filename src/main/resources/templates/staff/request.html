@@ -40,6 +40,7 @@
                 <dd th:text="${#temporals.format(ticket.createdAt, 'h:mm a')} + ' · ' + ${@bi.t('staff.waited', waited)}">9:12 AM · waited 18 min</dd></div>
               <div><dt th:text="${@bi.t('staff.requirements')}">Requirements</dt>
                 <dd><span th:each="k, it : ${ticket.document.requirements}" th:text="${@bi.t(k)} + (${it.last} ? '' : ', ')">Valid ID, </span></dd></div>
+              <th:block th:replace="~{staff/fragments :: attribution(${ticket})}"></th:block>
             </dl>
           </section>
         </div>

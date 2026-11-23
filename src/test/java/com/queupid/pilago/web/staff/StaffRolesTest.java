@@ -1,5 +1,6 @@
 package com.queupid.pilago.web.staff;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -10,6 +11,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.time.Clock;
+import java.time.LocalDate;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -17,6 +21,9 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
+
+import com.queupid.pilago.model.request.Request;
+import com.queupid.pilago.storage.RequestRepository;
 
 /** Who may open which staff page, the login form, and the secretary → captain → release flow. */
 @SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:pilago-staff-test")
@@ -29,6 +36,12 @@ class StaffRolesTest {
 
     @Autowired
     MockMvc mvc;
+
+    @Autowired
+    RequestRepository requests;
+
+    @Autowired
+    Clock clock;
 
     @Test
     void staffPagesNeedALogin() throws Exception {
@@ -95,6 +108,45 @@ class StaffRolesTest {
         // next in line is P-005 (PWD), a paid-free residency certificate
         mvc.perform(post("/staff/call-next").with(SECRETARY).with(csrf()))
                 .andExpect(flash().attribute("toast", containsString("P-005 called")));
+    }
+
+    @Test
+    void staffActionsSaveAndDisplayTheirAttribution() throws Exception {
+        mvc.perform(post("/staff/request/C-003/forward").with(SECRETARY).with(csrf()))
+                .andExpect(redirectedUrl("/staff"));
+        mvc.perform(post("/staff/call-next").with(SECRETARY).with(csrf()))
+                .andExpect(flash().attribute("toast", containsString("P-005 called")));
+        mvc.perform(post("/staff/request/P-005/forward").with(SECRETARY).with(csrf()))
+                .andExpect(redirectedUrl("/staff"));
+
+        mvc.perform(get("/captain").param("view", "P-005").with(CAPTAIN))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Called by")))
+                .andExpect(content().string(containsString("Processed by")))
+                .andExpect(content().string(containsString("Maria Santos ·")));
+
+        mvc.perform(post("/captain/sign/P-005").with(CAPTAIN).with(csrf()))
+                .andExpect(redirectedUrl("/captain"));
+        mvc.perform(post("/captain/sign-all").with(CAPTAIN).with(csrf()))
+                .andExpect(redirectedUrl("/captain"));
+        mvc.perform(get("/staff/request/P-005").with(SECRETARY))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Signed by")))
+                .andExpect(content().string(containsString("Roberto Mendoza ·")));
+
+        var saved = requests.findByTicketDateOrderByDailySequenceAsc(LocalDate.now(clock));
+        Request ticket = saved.stream().filter(r -> r.getTicketNumber().equals("P-005")).findFirst().orElseThrow();
+        assertThat(ticket.getCalledBy()).isEqualTo("Maria Santos");
+        assertThat(ticket.getForwardedBy()).isEqualTo("Maria Santos");
+        assertThat(ticket.getSignedBy()).contains("Roberto Mendoza");
+        assertThat(ticket.getCalledAt()).isNotNull();
+        assertThat(ticket.getForwardedAt()).isAfterOrEqualTo(ticket.getCalledAt());
+        assertThat(ticket.getSignedAt()).isAfterOrEqualTo(ticket.getForwardedAt());
+        assertThat(saved).filteredOn(r -> r.getTicketNumber().equals("C-003") || r.getTicketNumber().equals("S-004"))
+                .hasSize(2).allSatisfy(r -> {
+                    assertThat(r.getSignedBy()).contains("Roberto Mendoza");
+                    assertThat(r.getSignedAt()).isNotNull();
+                });
     }
 
     @Test

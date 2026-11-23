@@ -86,6 +86,11 @@ public class Request implements Payable {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime calledAt;
+    private String calledBy;
+    private String forwardedBy;
+    private LocalDateTime forwardedAt;
+    private String signedBy;
+    private LocalDateTime signedAt;
 
     @Transient
     private Document document;
@@ -130,6 +135,23 @@ public class Request implements Payable {
         }
         status = next;
         updatedAt = now;
+    }
+
+    public void call(String staffName, LocalDateTime now) {
+        updateStatus(RequestStatus.PROCESSING, now);
+        calledBy = staffName;
+    }
+
+    public void forwardToCaptain(String staffName, LocalDateTime now) {
+        updateStatus(RequestStatus.FOR_SIGNATURE, now);
+        forwardedBy = staffName;
+        forwardedAt = now;
+    }
+
+    public void sign(String staffName, LocalDateTime now) {
+        updateStatus(RequestStatus.READY, now);
+        signedBy = staffName;
+        signedAt = now;
     }
 
     /** Puts the request on hold and remembers why. */
@@ -270,6 +292,26 @@ public class Request implements Payable {
     /** When the secretary called this ticket; {@code null} if not yet called. */
     public LocalDateTime getCalledAt() {
         return calledAt;
+    }
+
+    public String getCalledBy() {
+        return calledBy;
+    }
+
+    public String getForwardedBy() {
+        return forwardedBy;
+    }
+
+    public LocalDateTime getForwardedAt() {
+        return forwardedAt;
+    }
+
+    public String getSignedBy() {
+        return signedBy;
+    }
+
+    public LocalDateTime getSignedAt() {
+        return signedAt;
     }
 
     @Override

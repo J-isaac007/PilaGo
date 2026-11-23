@@ -65,8 +65,8 @@ public class CaptainPage {
 
     @PostMapping("/sign/{ticket}")
     public String sign(@PathVariable String ticket, Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.SIGN);
-        queue.sign(ticket);
+        StaffMember member = current.require(principal, StaffAction.SIGN);
+        queue.sign(ticket, member.getName());
         flash.addFlashAttribute("toast", bi.t("captain.toast.signed", ticket));
         return "redirect:/captain";
     }
@@ -90,10 +90,10 @@ public class CaptainPage {
 
     @PostMapping("/sign-all")
     public String signAll(Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.SIGN);
+        StaffMember member = current.require(principal, StaffAction.SIGN);
         List<Request> toSign = queue.getForSignature();
         for (Request r : toSign) {
-            queue.sign(r.getTicketNumber());
+            queue.sign(r.getTicketNumber(), member.getName());
         }
         flash.addFlashAttribute("toast", bi.t("captain.toast.signed-all", toSign.size()));
         return "redirect:/captain";
