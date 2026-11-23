@@ -176,8 +176,8 @@ public class StaffPage {
 
     @PostMapping("/call-next")
     public String callNext(Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.CALL_NEXT);
-        queue.callNext().ifPresentOrElse(
+        StaffMember member = current.require(principal, StaffAction.CALL_NEXT);
+        queue.callNext(member.getName()).ifPresentOrElse(
                 r -> toast(flash, "staff.toast.called", r.getTicketNumber()),
                 () -> toast(flash, "staff.toast.nobody"));
         return "redirect:/staff";
@@ -224,8 +224,8 @@ public class StaffPage {
 
     @PostMapping("/request/{ticket}/forward")
     public String forward(@PathVariable String ticket, Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.FORWARD_TO_CAPTAIN);
-        queue.forwardToCaptain(ticket);
+        StaffMember member = current.require(principal, StaffAction.FORWARD_TO_CAPTAIN);
+        queue.forwardToCaptain(ticket, member.getName());
         toast(flash, "staff.toast.forwarded", ticket);
         return "redirect:/staff";
     }

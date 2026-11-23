@@ -120,7 +120,7 @@ public class RequestQueueService implements RequestQueue {
     // ── Secretary ────────────────────────────────────────────────────────
 
     @Override
-    public synchronized Optional<Request> callNext() {
+    public synchronized Optional<Request> callNext(String staffName) {
         rollOverIfNewDay();
         if (nowServing != null && nowServing.getStatus() == RequestStatus.PROCESSING) {
             throw new QueueBusyException(nowServing.getTicketNumber());
@@ -130,7 +130,7 @@ public class RequestQueueService implements RequestQueue {
             return Optional.empty();
         }
         Request next = waitingRequests.get(0);
-        next.updateStatus(RequestStatus.PROCESSING, now());
+        next.call(staffName, now());
         waitingRequests.remove(0);
         nowServing = next;
         storage.save(next);
@@ -157,9 +157,9 @@ public class RequestQueueService implements RequestQueue {
     }
 
     @Override
-    public synchronized void forwardToCaptain(String ticket) {
+    public synchronized void forwardToCaptain(String ticket, String staffName) {
         Request request = require(ticket);
-        request.updateStatus(RequestStatus.FOR_SIGNATURE, now());
+        request.forwardToCaptain(staffName, now());
         leaveLineAndCounter(request);
         storage.save(request);
     }
@@ -198,9 +198,9 @@ public class RequestQueueService implements RequestQueue {
     // ── Captain ──────────────────────────────────────────────────────────
 
     @Override
-    public synchronized void sign(String ticket) {
+    public synchronized void sign(String ticket, String staffName) {
         Request request = require(ticket);
-        request.updateStatus(RequestStatus.READY, now());
+        request.sign(staffName, now());
         storage.save(request);
     }
 

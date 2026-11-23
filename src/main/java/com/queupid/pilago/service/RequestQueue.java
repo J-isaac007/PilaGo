@@ -58,7 +58,11 @@ public interface RequestQueue {
      * @return the called ticket, or empty if nobody is waiting
      * @throws QueueBusyException if Now serving is still being processed
      */
-    Optional<Request> callNext();
+    default Optional<Request> callNext() {
+        return callNext(null);
+    }
+
+    Optional<Request> callNext(String staffName);
 
     /** The resident did not come to the counter: → NO_SHOW. Clears Now serving if it was this ticket. */
     void skip(String ticket);
@@ -67,7 +71,11 @@ public interface RequestQueue {
     void markPaid(String ticket);
 
     /** PROCESSING → FOR_SIGNATURE. Fails if a fee is due and not paid. */
-    void forwardToCaptain(String ticket);
+    default void forwardToCaptain(String ticket) {
+        forwardToCaptain(ticket, null);
+    }
+
+    void forwardToCaptain(String ticket, String staffName);
 
     /** WAITING or PROCESSING → ON_HOLD with a reason; {@code note} may be null. */
     void putOnHold(String ticket, HoldReason reason, String note);
@@ -81,7 +89,11 @@ public interface RequestQueue {
     // ── Captain (Part 3) ─────────────────────────────────────────────────
 
     /** FOR_SIGNATURE → READY. */
-    void sign(String ticket);
+    default void sign(String ticket) {
+        sign(ticket, null);
+    }
+
+    void sign(String ticket, String staffName);
 
     /**
      * The captain sends a request back instead of signing it: FOR_SIGNATURE → ON_HOLD, shown on the

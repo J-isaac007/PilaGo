@@ -61,4 +61,18 @@
       <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
   </body>
+  <th:block th:fragment="attribution(request)">
+    <div th:if="${request.calledBy != null}">
+      <dt th:text="${@bi.t('staff.called-by')}">Called by</dt>
+      <dd th:text="${request.calledBy + ' · ' + #temporals.format(request.calledAt, 'MMM d, h:mm a')}">Secretary</dd>
+    </div>
+    <div th:if="${request.forwardedBy != null}">
+      <dt th:text="${@bi.t('staff.processed-by')}">Processed by</dt>
+      <dd th:text="${request.forwardedBy + ' · ' + #temporals.format(request.forwardedAt, 'MMM d, h:mm a')}">Secretary</dd>
+    </div>
+    <div th:if="${request.signedBy != null}">
+      <dt th:text="${@bi.t('staff.signed-by')}">Signed by</dt>
+      <dd th:text="${request.signedBy + ' · ' + #temporals.format(request.signedAt, 'MMM d, h:mm a')}">Captain</dd>
+    </div>
+  </th:block>
 </html>

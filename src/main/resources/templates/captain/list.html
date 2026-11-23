@@ -63,6 +63,7 @@
             <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.t(r.documentType.messageKey)}">Certificate of Indigency</dd></div>
             <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(r.purpose.messageKey)}">Medical</dd></div>
             <div><dt th:text="${@bi.t('resident.review.fee')}">Fee</dt><dd class="pg-fee" th:text="${@bi.fee(r.fee)}">Free</dd></div>
+            <th:block th:replace="~{staff/fragments :: attribution(${r})}"></th:block>
           </dl>
           <form th:action="@{/captain/sign/{t}(t=${r.ticketNumber})}" method="post">
             <button class="pg-btn pg-btn--lg pg-btn--accent pg-btn--block" type="submit" th:text="${@bi.t('captain.sign')}">Sign</button>
