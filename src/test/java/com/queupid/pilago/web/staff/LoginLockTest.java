@@ -72,7 +72,7 @@ class LoginLockTest {
     }
 
     @Test
-    void lockedPageShowsTheBilingualMessage() throws Exception {
+    void lockedPageShowsTheTooManyTriesMessage() throws Exception {
         mvc.perform(get("/login").param("locked", ""))
                 .andExpect(content().string(containsString(
                         "Too many tries. Try again in 10 minutes")));
