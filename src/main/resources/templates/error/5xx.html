@@ -7,9 +7,9 @@
     <!-- 500 and other server errors. No stack traces are shown (server.error.include-stacktrace=never). -->
     <main class="pg-page">
       <div th:replace="~{fragments/shared :: tip('error.page.5xx', 'warning')}"></div>
-      <p class="pg-muted" th:text="${@bi.en('error.page.code', status)}">Error 500</p>
+      <p class="pg-muted" th:text="${@bi.t('error.page.code', status)}">Error 500</p>
       <a class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" th:href="@{/}"
-         th:text="${@bi.t('resident.cta.start')}">Back to start · Bumalik sa simula</a>
+         th:text="${@bi.t('resident.cta.start')}">Back to start</a>
     </main>
   </body>
 </html>

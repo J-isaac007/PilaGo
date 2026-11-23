@@ -83,6 +83,18 @@ public interface RequestQueue {
     /** FOR_SIGNATURE → READY. */
     void sign(String ticket);
 
+    /**
+     * The captain sends a request back instead of signing it: FOR_SIGNATURE → ON_HOLD, shown on the
+     * secretary's On hold tab with {@code Request.isReturnedByCaptain()}. The secretary's {@link #verify}
+     * puts it back in line at its old place; it is then called and forwarded again (a payment stays recorded).
+     *
+     * @param reason one of {@code HoldReason.returnReasons()}: WRONG_DETAILS, PAYMENT_NOT_CONFIRMED,
+     *               ID_NEEDS_CHECKING or OTHER (Figma S4B / S11b)
+     * @param note   what to fix; required when the reason is OTHER
+     * @throws com.queupid.pilago.exception.ReturnNoteRequiredException if the reason is OTHER without a note
+     */
+    void returnToSecretary(String ticket, HoldReason reason, String note);
+
     // ── Lists and lookups (everyone) ─────────────────────────────────────
 
     /** Any of today's tickets by number, e.g. for {@code /staff/request/S-004}. */

@@ -11,5 +11,6 @@ public enum StaffAction {
     RELEASE,
     VIEW_FOR_SIGNATURE,
     SIGN,
+    RETURN_TO_SECRETARY,
     VIEW_DAILY_SUMMARY
 }

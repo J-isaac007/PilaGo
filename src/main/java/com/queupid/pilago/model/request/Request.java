@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import com.queupid.pilago.exception.InvalidStatusTransitionException;
+import com.queupid.pilago.exception.ReturnNoteRequiredException;
 import com.queupid.pilago.model.document.Document;
 import com.queupid.pilago.model.document.DocumentType;
 import com.queupid.pilago.model.document.Payable;
@@ -79,6 +80,9 @@ public class Request implements Payable {
     private HoldReason holdReason;
     private String holdNote;
 
+    /** True while the request is on hold because the captain sent it back. Wrapper type: older rows have no value. */
+    private Boolean returnedByCaptain;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime calledAt;
@@ -122,6 +126,7 @@ public class Request implements Payable {
         if (status == RequestStatus.ON_HOLD) {
             holdReason = null;
             holdNote = null;
+            returnedByCaptain = null;
         }
         status = next;
         updatedAt = now;
@@ -132,6 +137,30 @@ public class Request implements Payable {
         updateStatus(RequestStatus.ON_HOLD, now);
         this.holdReason = Objects.requireNonNull(reason, "reason");
         this.holdNote = note == null || note.isBlank() ? null : note.strip();
+    }
+
+    /**
+     * The captain sends the request back to the secretary instead of signing it: FOR_SIGNATURE → ON_HOLD.
+     * The secretary then uses "Verify and return to queue", so the resident is called again at their old
+     * place in line. A payment already recorded stays recorded.
+     *
+     * @throws InvalidStatusTransitionException if the request is not waiting for the captain's signature
+     * @throws IllegalArgumentException if the reason is not one of {@link HoldReason#returnReasons()}
+     * @throws ReturnNoteRequiredException if the reason is OTHER and there is no note
+     */
+    public void returnToSecretary(HoldReason reason, String note, LocalDateTime now) {
+        if (status != RequestStatus.FOR_SIGNATURE) {
+            throw new InvalidStatusTransitionException(ticketNumber, status, RequestStatus.ON_HOLD,
+                    "only requests waiting for the captain's signature can be returned");
+        }
+        if (!HoldReason.returnReasons().contains(reason)) {
+            throw new IllegalArgumentException("Not a reason the captain can return with: " + reason);
+        }
+        if (reason == HoldReason.OTHER && (note == null || note.isBlank())) {
+            throw new ReturnNoteRequiredException(ticketNumber);
+        }
+        putOnHold(reason, note, now);
+        returnedByCaptain = true;
     }
 
     /** Records that the resident paid the full fee at the counter. */
@@ -223,6 +252,11 @@ public class Request implements Payable {
     /** Secretary's note for the hold, or {@code null}. */
     public String getHoldNote() {
         return holdNote;
+    }
+
+    /** True while the request is on hold because the captain sent it back to the secretary. */
+    public boolean isReturnedByCaptain() {
+        return Boolean.TRUE.equals(returnedByCaptain);
     }
 
     public LocalDateTime getCreatedAt() {

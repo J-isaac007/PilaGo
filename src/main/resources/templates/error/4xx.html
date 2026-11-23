@@ -9,12 +9,12 @@
           th:with="key=${status == 403 ? 'error.page.403' : (status == 404 ? 'error.page.404' : 'error.page.4xx')},
                    staffPath=${path != null and (#strings.startsWith(path, '/staff') or #strings.startsWith(path, '/captain'))}">
       <div th:replace="~{fragments/shared :: tip(${key}, 'warning')}"></div>
-      <p class="pg-muted" th:text="${@bi.en('error.page.code', status)}">Error 404</p>
+      <p class="pg-muted" th:text="${@bi.t('error.page.code', status)}">Error 404</p>
       <div class="pg-stack">
         <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:if="${staffPath}" th:href="@{/login}"
-           th:text="${@bi.t('auth.title')}">Staff login · Pag-login ng kawani</a>
+           th:text="${@bi.t('auth.title')}">Staff login</a>
         <a class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" th:href="@{/}"
-           th:text="${@bi.t('resident.cta.start')}">Back to start · Bumalik sa simula</a>
+           th:text="${@bi.t('resident.cta.start')}">Back to start</a>
       </div>
     </main>
   </body>

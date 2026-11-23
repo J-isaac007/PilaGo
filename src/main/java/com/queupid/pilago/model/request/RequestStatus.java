@@ -9,9 +9,10 @@ import java.util.Set;
  *
  * <pre>
  * WAITING ──call──▶ PROCESSING ──forward──▶ FOR_SIGNATURE ──sign──▶ READY ──release──▶ RELEASED
- *    │  ▲               │  │
+ *    │  ▲               │  │                     │
  *    │  └──verify── ON_HOLD ◀──hold──┘  └──skip──▶ NO_SHOW
- *    └──────hold─────────┘
+ *    └──────hold─────────┘   ▲                     │
+ *                            └──captain returns────┘
  * </pre>
  */
 public enum RequestStatus {
@@ -40,7 +41,7 @@ public enum RequestStatus {
             case WAITING -> EnumSet.of(PROCESSING, ON_HOLD, NO_SHOW);
             case ON_HOLD -> EnumSet.of(WAITING, PROCESSING);
             case PROCESSING -> EnumSet.of(FOR_SIGNATURE, ON_HOLD, NO_SHOW);
-            case FOR_SIGNATURE -> EnumSet.of(READY);
+            case FOR_SIGNATURE -> EnumSet.of(READY, ON_HOLD);
             case READY -> EnumSet.of(RELEASED);
             case RELEASED, NO_SHOW -> EnumSet.noneOf(RequestStatus.class);
         };
@@ -51,7 +52,7 @@ public enum RequestStatus {
         return this != RELEASED && this != NO_SHOW;
     }
 
-    /** Key in messages.properties; add {@code .fil} for the Filipino text. */
+    /** Key in messages.properties for the English text shown on the page. */
     public String getMessageKey() {
         return messageKey;
     }

@@ -24,44 +24,42 @@
     <!-- Polled every 3 s: only this fragment is re-rendered by GET /display/board -->
     <main class="tv-board" th:fragment="board" th:attr="hx-get=@{/display/board}" hx-trigger="every 3s" hx-swap="outerHTML">
       <section class="tv-panel tv-serving" aria-live="polite">
-        <div class="tv-label" th:text="${@bi.t('display.now-serving')}">Now serving · Kasalukuyang tinatawag</div>
+        <div class="tv-label" th:text="${@bi.t('display.now-serving')}">Now serving</div>
         <div th:if="${board.nowServing != null}" class="tv-hero" th:text="${board.nowServing}">C-003</div>
         <div th:if="${board.nowServing == null}" class="tv-hero tv-hero--empty">—</div>
         <div th:if="${board.nowServing != null}" class="tv-counter"
-             th:text="${@bi.t('display.go-counter', board.counter)}">Go to Counter 1 · Pumunta sa Counter 1</div>
+             th:text="${@bi.t('display.go-counter', board.counter)}">Go to Counter 1</div>
         <div th:if="${!board.next.isEmpty()}" class="tv-next">
-          <span class="tv-next__label" th:remove="tag" th:text="${@bi.t('cta.next')} + ':'">Next · Susunod:</span>
+          <span class="tv-next__label" th:remove="tag" th:text="${@bi.t('cta.next')} + ':'">Next</span>
           <span th:each="n : ${board.next}" th:text="${n}">P-005</span>
         </div>
       </section>
 
       <div class="tv-side">
         <section class="tv-panel tv-waiting">
-          <div class="tv-label" th:text="${@bi.t('status.waiting')} + ' (' + ${board.waitingCount} + ')'">Waiting · Naghihintay (4)</div>
+          <div class="tv-label" th:text="${@bi.t('status.waiting')} + ' (' + ${board.waitingCount} + ')'">Waiting</div>
           <ul class="tv-list">
             <li th:each="t : ${board.waiting}">
               <span class="tv-num" th:text="${t.number}">P-005</span>
               <span th:if="${t.priority.priority}" class="pg-tag" th:classappend="'pg-tag--' + ${t.priority.cssModifier}"
-                    th:text="${@bi.t(t.priority.messageKey)}">PWD · May kapansanan</span>
+                    th:text="${@bi.t(t.priority.messageKey)}">PWD</span>
             </li>
           </ul>
           <p th:if="${board.waiting.isEmpty()}" class="tv-none" th:text="${@bi.t('display.none-waiting')}">No one waiting</p>
         </section>
 
         <section class="tv-panel tv-ready">
-          <div class="tv-label" th:text="${@bi.t('display.ready')}">Ready for release · Handa nang kunin</div>
+          <div class="tv-label" th:text="${@bi.t('display.ready')}">Ready for release</div>
           <span th:each="r : ${board.ready}" class="tv-num" th:text="${r}">S-002</span>
-          <p th:if="${board.ready.isEmpty()}" class="tv-none" th:text="${@bi.t('display.none-ready')}">None yet · Wala pa</p>
+          <p th:if="${board.ready.isEmpty()}" class="tv-none" th:text="${@bi.t('display.none-ready')}">None yet</p>
         </section>
       </div>
     </main>
 
     <footer class="tv-foot">
-      <p><span th:text="${@bi.en('display.footer.priority')}">Seniors (60+) and PWD are served first</span> &nbsp;•&nbsp;
-        <span th:text="${@bi.en('display.footer.get')}">Get your ticket on your phone:</span>
+      <p><span th:text="${@bi.t('display.footer.priority')}">Seniors (60+) and PWD are served first</span> &nbsp;•&nbsp;
+        <span th:text="${@bi.t('display.footer.get')}">Get your ticket on your phone:</span>
         <span th:text="${publicUrl}">pilago-sanisidro.onrender.com</span></p>
-      <p lang="fil"><span th:text="${@bi.fil('display.footer.priority')}">Inuuna ang senior at PWD</span> &nbsp;•&nbsp;
-        <span th:text="${@bi.fil('display.footer.skip')}">Kung wala ka kapag tinawag, malalaktawan ang tiket mo.</span></p>
     </footer>
 
     <script>

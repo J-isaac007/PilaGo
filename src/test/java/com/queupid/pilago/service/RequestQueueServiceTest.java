@@ -14,6 +14,7 @@ import com.queupid.pilago.config.TimeConfig;
 import com.queupid.pilago.exception.DuplicateRequestException;
 import com.queupid.pilago.exception.InvalidStatusTransitionException;
 import com.queupid.pilago.exception.QueueBusyException;
+import com.queupid.pilago.exception.ReturnNoteRequiredException;
 import com.queupid.pilago.exception.TicketNotFoundException;
 import com.queupid.pilago.model.document.DocumentType;
 import com.queupid.pilago.model.document.Purpose;
@@ -167,6 +168,43 @@ class RequestQueueServiceTest {
                 "Lim, Rosa", 70, "Alangilan", 5, 0, false, false));
         assertThat(next.getTicketNumber()).isEqualTo("S-010");
         assertThat(storage.lastSequence(next.getTicketDate())).isEqualTo(10);
+    }
+
+    @Test
+    void captainReturnsARequestAndItComesBackThroughTheLine() {
+        new SampleDay(queue).load(); // S-004: paid ₱50, waiting for the captain; C-003 at the counter
+
+        assertThatThrownBy(() -> queue.returnToSecretary("C-003", HoldReason.WRONG_DETAILS, null))
+                .as("C-003 is at the counter, not with the captain").isInstanceOf(InvalidStatusTransitionException.class);
+        assertThatThrownBy(() -> queue.returnToSecretary("S-004", HoldReason.OTHER, null))
+                .isInstanceOf(ReturnNoteRequiredException.class);
+        assertThatThrownBy(() -> queue.putOnHold("S-004", HoldReason.OTHER, "x"))
+                .as("the secretary can't hold a request that is with the captain").isInstanceOf(InvalidStatusTransitionException.class);
+
+        queue.returnToSecretary("S-004", HoldReason.PAYMENT_NOT_CONFIRMED, "Receipt number missing");
+        assertThat(queue.getForSignature()).isEmpty();
+        assertThat(queue.getOnHold()).extracting(Request::getTicketNumber).containsExactly("S-004", "C-007");
+        assertThat(queue.findByTicket("S-004")).get().satisfies(r -> {
+            assertThat(r.isReturnedByCaptain()).isTrue();
+            assertThat(r.getHoldReason()).isEqualTo(HoldReason.PAYMENT_NOT_CONFIRMED);
+        });
+
+        // the secretary verifies it: back in line at its old place (seniors first, then by number)
+        queue.verify("S-004");
+        assertThat(queue.getWaiting()).extracting(Request::getTicketNumber)
+                .containsExactly("S-004", "P-005", "S-008", "C-006", "C-009");
+
+        // finish C-003, then S-004 is called and forwarded again without paying twice
+        queue.forwardToCaptain("C-003");
+        assertThat(queue.callNext()).get().extracting(Request::getTicketNumber).isEqualTo("S-004");
+        queue.forwardToCaptain("S-004");
+        assertThat(queue.getForSignature()).extracting(Request::getTicketNumber).containsExactlyInAnyOrder("C-003", "S-004");
+        assertThat(queue.getDailySummary().getFeesCollected()).isEqualByComparingTo("100.00");
+
+        // and it was all saved
+        RequestQueueService restarted = new RequestQueueService(clock, storage);
+        assertThat(restarted.findByTicket("S-004")).get().extracting(Request::getStatus)
+                .isEqualTo(RequestStatus.FOR_SIGNATURE);
     }
 
     @Test

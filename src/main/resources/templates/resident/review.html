@@ -11,7 +11,7 @@
         <div th:replace="~{fragments/shared :: tip('resident.review.tip', '')}"></div>
 
         <dl class="pg-summary">
-          <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.en(form.documentType.messageKey)}">Barangay Clearance</dd></div>
+          <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.t(form.documentType.messageKey)}">Barangay Clearance</dd></div>
           <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(form.purpose.messageKey)}">Employment</dd></div>
           <div><dt th:text="${@bi.t('resident.review.name')}">Name</dt><dd th:text="*{fullName}">Dela Cruz, Juan M.</dd></div>
           <div><dt th:text="${@bi.t('resident.field.age')}">Age</dt><dd th:text="*{age}">64</dd></div>
@@ -34,8 +34,8 @@
         </div>
 
         <div class="pg-actions">
-          <a class="pg-btn pg-btn--lg pg-btn--secondary" th:href="@{/request/details}" th:text="${@bi.t('resident.cta.edit')}">Edit · Baguhin</a>
-          <button class="pg-btn pg-btn--lg pg-btn--accent" type="submit" th:text="${@bi.t('resident.cta.confirm')}">Get ticket · Kumuha</button>
+          <a class="pg-btn pg-btn--lg pg-btn--secondary" th:href="@{/request/details}" th:text="${@bi.t('resident.cta.edit')}">Edit</a>
+          <button class="pg-btn pg-btn--lg pg-btn--accent" type="submit" th:text="${@bi.t('resident.cta.confirm')}">Get ticket</button>
         </div>
       </main>
     </form>

@@ -13,7 +13,7 @@ public abstract class PilaGoException extends RuntimeException {
         this.messageKey = messageKey;
     }
 
-    /** Key in messages.properties; add {@code .fil} for the Filipino text. */
+    /** Key in messages.properties for the English text shown on the page. */
     public String getMessageKey() {
         return messageKey;
     }

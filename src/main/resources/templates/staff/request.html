@@ -6,17 +6,17 @@
 
     <!-- S3 / S10 · Process request. The buttons depend on the ticket's status. -->
     <main class="st-page" th:with="status=${ticket.status.name()}">
-      <a class="st-back" th:href="@{/staff}">← <span th:text="${@bi.t('staff.back-to-queue')}">Back to queue · Bumalik sa pila</span></a>
+      <a class="st-back" th:href="@{/staff}">← <span th:text="${@bi.t('staff.back-to-queue')}">Back to queue</span></a>
       <div class="st-title">
-        <h1><span th:text="${@bi.t('staff.process')}">Process request · Iproseso</span> — <span th:text="${ticket.ticketNumber}">C-003</span></h1>
-        <span class="pg-badge" th:classappend="'pg-badge--' + ${ticket.status.cssModifier}" th:text="${@bi.t(ticket.status.messageKey)}">Processing · Pinoproseso</span>
-        <span class="pg-tag" th:classappend="'pg-tag--' + ${ticket.priorityGroup.cssModifier}" th:text="${@bi.t(ticket.priorityGroup.messageKey)}">Regular · Karaniwan</span>
+        <h1><span th:text="${@bi.t('staff.process')}">Process request</span> — <span th:text="${ticket.ticketNumber}">C-003</span></h1>
+        <span class="pg-badge" th:classappend="'pg-badge--' + ${ticket.status.cssModifier}" th:text="${@bi.t(ticket.status.messageKey)}">Processing</span>
+        <span class="pg-tag" th:classappend="'pg-tag--' + ${ticket.priorityGroup.cssModifier}" th:text="${@bi.t(ticket.priorityGroup.messageKey)}">Regular</span>
       </div>
 
       <div class="st-grid">
         <div class="st-main">
           <section class="st-card st-panel">
-            <h2 th:text="${@bi.t('staff.resident')}">Resident · Residente</h2>
+            <h2 th:text="${@bi.t('staff.resident')}">Resident</h2>
             <dl class="st-dl" th:with="p=${ticket.resident}">
               <div><dt th:text="${@bi.t('resident.field.name')}">Full name</dt><dd th:text="${p.name}">Santos, Ana R.</dd></div>
               <div><dt th:text="${@bi.t('resident.field.age')}">Age</dt><dd th:text="${p.age}">34</dd></div>
@@ -32,14 +32,14 @@
           </section>
 
           <section class="st-card st-panel">
-            <h2 th:text="${@bi.t('staff.request')}">Request · Kahilingan</h2>
+            <h2 th:text="${@bi.t('staff.request')}">Request</h2>
             <dl class="st-dl">
-              <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.en(ticket.documentType.messageKey)}">Barangay Clearance</dd></div>
-              <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(ticket.purpose.messageKey)}">Employment · Trabaho</dd></div>
+              <div><dt th:text="${@bi.t('resident.review.document')}">Document</dt><dd th:text="${@bi.t(ticket.documentType.messageKey)}">Barangay Clearance</dd></div>
+              <div><dt th:text="${@bi.t('resident.field.purpose')}">Purpose</dt><dd th:text="${@bi.t(ticket.purpose.messageKey)}">Employment</dd></div>
               <div><dt th:text="${@bi.t('staff.ticket-issued')}">Ticket issued</dt>
                 <dd th:text="${#temporals.format(ticket.createdAt, 'h:mm a')} + ' · ' + ${@bi.t('staff.waited', waited)}">9:12 AM · waited 18 min</dd></div>
               <div><dt th:text="${@bi.t('staff.requirements')}">Requirements</dt>
-                <dd><span th:each="k, it : ${ticket.document.requirements}" th:text="${@bi.en(k)} + (${it.last} ? '' : ', ')">Valid ID, </span></dd></div>
+                <dd><span th:each="k, it : ${ticket.document.requirements}" th:text="${@bi.t(k)} + (${it.last} ? '' : ', ')">Valid ID, </span></dd></div>
             </dl>
           </section>
         </div>
@@ -47,25 +47,25 @@
         <div class="st-main">
           <!-- Residency check -->
           <section class="st-card st-panel">
-            <h2 th:text="${@bi.t('staff.residency')}">Residency check · Pagsusuri</h2>
+            <h2 th:text="${@bi.t('staff.residency')}">Residency check</h2>
             <div class="st-check st-check--ok" th:if="${residencyProblem == null}">
               <svg th:replace="~{staff/fragments :: check}"></svg>
               <div><b th:text="${@bi.t('staff.residency.passed')}">Passed · Pasado</b>
-                <span th:text="${@bi.t('staff.residency.no-record')}">No pending record · Walang kaso</span></div>
+                <span th:text="${@bi.t('staff.residency.no-record')}">No pending record</span></div>
             </div>
             <div class="st-check st-check--hold" th:if="${residencyProblem != null}">
               <svg th:replace="~{staff/fragments :: alert}"></svg>
               <div><b th:text="${@bi.t('staff.residency.check')}">Needs checking · Kailangang suriin</b>
-                <span th:text="${@bi.en(residencyProblem.messageKey)}">Lived here less than 6 months.</span></div>
+                <span th:text="${@bi.t(residencyProblem.messageKey)}">Lived here less than 6 months.</span></div>
             </div>
           </section>
 
           <!-- Fee, payment and the next step -->
           <section class="st-card st-panel">
-            <h2 th:text="${@bi.t('staff.fee')}">Fee &amp; payment · Bayad</h2>
+            <h2 th:text="${@bi.t('staff.fee')}">Fee &amp; payment</h2>
             <div class="st-fee">
-              <span><span th:text="${@bi.en(ticket.documentType.messageKey)}">Clearance</span> ·
-                <span th:text="${@bi.t(ticket.purpose.messageKey)}">Employment · Trabaho</span></span>
+              <span><span th:text="${@bi.t(ticket.documentType.messageKey)}">Clearance</span> ·
+                <span th:text="${@bi.t(ticket.purpose.messageKey)}">Employment</span></span>
               <strong th:text="${@bi.fee(ticket.fee)}">₱50.00</strong>
             </div>
 
@@ -74,7 +74,7 @@
               <div th:unless="${ticket.free}">
                 <div class="pg-card st-paid is-paid" th:if="${ticket.paid}">
                   <span class="st-box" aria-hidden="true"></span>
-                  <span><b th:text="${@bi.t('staff.paid')} + ' · ' + ${@bi.peso(ticket.amountPaid)}">Payment received · Bayad na · ₱50.00</b>
+                  <span><b th:text="${@bi.t('staff.paid')} + ' · ' + ${@bi.peso(ticket.amountPaid)}">Payment received · ₱50.00</b>
                     <span class="pg-muted" th:text="${@bi.t('staff.paid.note')}">Cash at the counter</span></span>
                 </div>
                 <form th:unless="${ticket.paid}" th:action="@{/staff/request/{t}/pay(t=${ticket.ticketNumber})}" method="post">
@@ -87,23 +87,23 @@
               </div>
               <form th:action="@{/staff/request/{t}/forward(t=${ticket.ticketNumber})}" method="post">
                 <button class="pg-btn pg-btn--lg pg-btn--accent" type="submit" th:disabled="${!canForward}"
-                        th:text="${@bi.t('staff.forward')}">Forward to Captain · Ipasa sa Kapitan</button>
+                        th:text="${@bi.t('staff.forward')}">Forward to Captain</button>
               </form>
-              <button class="pg-btn pg-btn--lg pg-btn--secondary" type="button" data-open="dlg-hold" th:text="${@bi.t('staff.put-on-hold')}">Put on hold · Ipabinbin</button>
+              <button class="pg-btn pg-btn--lg pg-btn--secondary" type="button" data-open="dlg-hold" th:text="${@bi.t('staff.put-on-hold')}">Put on hold</button>
               <p class="pg-muted" th:text="${@bi.t('staff.forward.note')}">Forward works after payment</p>
             </th:block>
 
             <!-- Still in line -->
             <th:block th:if="${status == 'WAITING'}">
               <p class="pg-callout" th:text="${@bi.t('staff.not-at-counter')}">This ticket is not at the counter yet.</p>
-              <button class="pg-btn pg-btn--lg pg-btn--secondary" type="button" data-open="dlg-hold" th:text="${@bi.t('staff.put-on-hold')}">Put on hold · Ipabinbin</button>
+              <button class="pg-btn pg-btn--lg pg-btn--secondary" type="button" data-open="dlg-hold" th:text="${@bi.t('staff.put-on-hold')}">Put on hold</button>
             </th:block>
 
             <!-- On hold -->
             <th:block th:if="${status == 'ON_HOLD'}">
               <div class="st-check st-check--hold" th:if="${ticket.holdReason != null}">
                 <svg th:replace="~{staff/fragments :: alert}"></svg>
-                <div><b th:text="${@bi.en(ticket.holdReason.messageKey)}">A requirement is missing.</b>
+                <div><b th:text="${@bi.t(ticket.holdReason.messageKey)}">A requirement is missing.</b>
                   <span th:if="${ticket.holdNote != null}" th:text="${ticket.holdNote}">No valid ID</span></div>
               </div>
               <form th:action="@{/staff/request/{t}/verify(t=${ticket.ticketNumber})}" method="post">
@@ -114,15 +114,14 @@
 
             <!-- Signed, waiting at the counter -->
             <th:block th:if="${status == 'READY'}">
-              <button class="pg-btn pg-btn--lg pg-btn--accent" type="button" data-open="dlg-release" th:text="${@bi.t('staff.release')}">Release · Ibigay</button>
+              <button class="pg-btn pg-btn--lg pg-btn--accent" type="button" data-open="dlg-release" th:text="${@bi.t('staff.release')}">Release</button>
               <dialog class="st-dialog" id="dlg-release">
                 <form th:action="@{/staff/release/{t}(t=${ticket.ticketNumber})}" method="post">
                   <h2 th:text="${@bi.t('staff.release.title', ticket.resident.name)}">Release to Pedro T. Aquino?</h2>
-                  <p th:text="${@bi.en('staff.release.body', @bi.en(ticket.documentType.messageKey))}">Check the resident's valid ID…</p>
-                  <p lang="fil" th:text="${@bi.fil('staff.release.body', @bi.en(ticket.documentType.messageKey))}">Tingnan muna ang valid ID bago ibigay.</p>
+                  <p th:text="${@bi.t('staff.release.body', @bi.t(ticket.documentType.messageKey))}">Check the resident's valid ID…</p>
                   <div class="st-actions">
-                    <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel · Kanselahin</button>
-                    <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('staff.release')}">Release · Ibigay</button>
+                    <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel</button>
+                    <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('staff.release')}">Release</button>
                   </div>
                 </form>
               </dialog>
@@ -136,9 +135,9 @@
         <form th:action="@{/staff/request/{t}/hold(t=${ticket.ticketNumber})}" method="post">
           <h2 th:text="${@bi.t('staff.hold.title', ticket.ticketNumber)}">Put C-003 on hold?</h2>
           <label>
-            <span th:text="${@bi.t('staff.hold.reason')}">Reason · Dahilan</span>
+            <span th:text="${@bi.t('staff.hold.reason')}">Reason</span>
             <select class="pg-input" name="reason">
-              <option th:each="r : ${holdReasons}" th:value="${r.name()}" th:text="${@bi.en(r.messageKey)}">A requirement is missing.</option>
+              <option th:each="r : ${holdReasons}" th:value="${r.name()}" th:text="${@bi.t(r.messageKey)}">A requirement is missing.</option>
             </select>
           </label>
           <label>
@@ -146,8 +145,8 @@
             <textarea name="note" maxlength="200"></textarea>
           </label>
           <div class="st-actions">
-            <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel · Kanselahin</button>
-            <button class="pg-btn pg-btn--primary" type="submit" th:text="${@bi.t('staff.put-on-hold')}">Put on hold · Ipabinbin</button>
+            <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel</button>
+            <button class="pg-btn pg-btn--primary" type="submit" th:text="${@bi.t('staff.put-on-hold')}">Put on hold</button>
           </div>
         </form>
       </dialog>

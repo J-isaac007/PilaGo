@@ -14,7 +14,7 @@
           <!-- Now serving -->
           <section class="st-card st-serving" aria-live="polite">
             <div class="st-serving__num">
-              <p class="pg-eyebrow" th:text="${@bi.t('staff.now-serving')}">Now serving · Tinatawag</p>
+              <p class="pg-eyebrow" th:text="${@bi.t('staff.now-serving')}">Now serving</p>
               <p class="st-serving__ticket" th:text="${nowServing != null} ? ${nowServing.ticketNumber} : '—'">C-003</p>
             </div>
             <div class="st-serving__info">
@@ -22,12 +22,12 @@
                 <p class="st-serving__name">
                   <span th:text="${nowServing.resident.name}">Santos, Ana R.</span>
                   <span class="pg-tag" th:classappend="'pg-tag--' + ${nowServing.priorityGroup.cssModifier}"
-                        th:text="${@bi.t(nowServing.priorityGroup.messageKey)}">Regular · Karaniwan</span>
-                  <span class="pg-badge pg-badge--processing" th:text="${@bi.t('status.processing')}">Processing · Pinoproseso</span>
+                        th:text="${@bi.t(nowServing.priorityGroup.messageKey)}">Regular</span>
+                  <span class="pg-badge pg-badge--processing" th:text="${@bi.t('status.processing')}">Processing</span>
                 </p>
                 <p class="pg-secondary">
-                  <span th:text="${@bi.en(nowServing.documentType.messageKey)}">Barangay Clearance</span> ·
-                  <span th:text="${@bi.t(nowServing.purpose.messageKey)}">Employment · Trabaho</span> ·
+                  <span th:text="${@bi.t(nowServing.documentType.messageKey)}">Barangay Clearance</span> ·
+                  <span th:text="${@bi.t(nowServing.purpose.messageKey)}">Employment</span> ·
                   <span th:text="${@bi.fee(nowServing.fee)}">₱50.00</span> ·
                   <span th:text="${@bi.t('staff.called-ago', servingMinutes)}">Called 2 min ago</span>
                 </p>
@@ -36,11 +36,11 @@
 
               <div class="st-actions">
                 <th:block th:if="${nowServing != null}">
-                  <button class="pg-btn pg-btn--secondary" type="button" data-open="dlg-skip" th:text="${@bi.t('staff.skip')}">Skip · Laktawan</button>
-                  <a class="pg-btn pg-btn--secondary" th:href="@{/staff/request/{t}(t=${nowServing.ticketNumber})}" th:text="${@bi.t('staff.open')}">Open · Buksan</a>
+                  <button class="pg-btn pg-btn--secondary" type="button" data-open="dlg-skip" th:text="${@bi.t('staff.skip')}">Skip</button>
+                  <a class="pg-btn pg-btn--secondary" th:href="@{/staff/request/{t}(t=${nowServing.ticketNumber})}" th:text="${@bi.t('staff.open')}">Open</a>
                 </th:block>
                 <form th:action="@{/staff/call-next}" method="post">
-                  <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('staff.call-next')}">Call next · Tawagin</button>
+                  <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('staff.call-next')}">Call next</button>
                 </form>
               </div>
             </div>
@@ -51,7 +51,7 @@
             <nav class="st-tabs" aria-label="Queue">
               <a th:each="t : ${tabs}" class="st-tab" th:classappend="${t.active} ? 'is-active'"
                  th:href="@{/staff(tab=${t.tab.slug})}" th:attr="aria-current=${t.active} ? 'page' : null">
-                <span th:text="${@bi.t(t.tab.messageKey)}">Waiting · Naghihintay</span>
+                <span th:text="${@bi.t(t.tab.messageKey)}">Waiting</span>
                 <span class="st-count" th:text="${t.count}">4</span>
               </a>
             </nav>
@@ -81,34 +81,33 @@
                     th:classappend="${r.priorityGroup.name() == 'SENIOR'} ? 'is-senior' : (${r.priorityGroup.name() == 'PWD'} ? 'is-pwd' : '')">
                   <td class="st-ticket" th:text="${r.ticketNumber}">S-004</td>
                   <td th:text="${r.resident.name}">Ramos, Lourdes P.</td>
-                  <td th:text="${@bi.en(r.documentType.messageKey)}">Cert. of Indigency</td>
+                  <td th:text="${@bi.t(r.documentType.messageKey)}">Cert. of Indigency</td>
                   <td><span class="pg-tag" th:classappend="'pg-tag--' + ${r.priorityGroup.cssModifier}"
-                            th:text="${@bi.t(r.priorityGroup.messageKey)}">Senior 60+ · Nakatatanda</span></td>
+                            th:text="${@bi.t(r.priorityGroup.messageKey)}">Senior 60+</span></td>
                   <td th:switch="${tab.name()}">
-                    <span th:case="'ON_HOLD'" th:text="${r.holdReason != null} ? ${@bi.en(r.holdReason.messageKey)} : ''">Lived here less than 6 months.</span>
-                    <span th:case="'READY'" class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free · Libre</span>
+                    <span th:case="'ON_HOLD'" th:text="${r.holdReason != null} ? ${@bi.t(r.holdReason.messageKey)} : ''">Lived here less than 6 months.</span>
+                    <span th:case="'READY'" class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free</span>
                     <span th:case="*" th:text="${row.minutes} + ' min'">12 min</span>
                   </td>
                   <td th:switch="${tab.name()}">
                     <a th:case="'ON_HOLD'" class="pg-btn pg-btn--secondary" th:href="@{/staff/request/{t}(t=${r.ticketNumber})}"
-                       th:text="${@bi.t('staff.process.short')}">Process · Iproseso</a>
+                       th:text="${@bi.t('staff.process.short')}">Process</a>
                     <th:block th:case="'READY'">
                       <button class="pg-btn pg-btn--accent" type="button" th:attr="data-open='dlg-release-' + ${r.ticketNumber}"
-                              th:text="${@bi.t('staff.release')}">Release · Ibigay</button>
+                              th:text="${@bi.t('staff.release')}">Release</button>
                       <dialog class="st-dialog" th:id="'dlg-release-' + ${r.ticketNumber}">
                         <form th:action="@{/staff/release/{t}(t=${r.ticketNumber})}" method="post">
                           <h2 th:text="${@bi.t('staff.release.title', r.resident.name)}">Release to Pedro T. Aquino?</h2>
-                          <p th:text="${@bi.en('staff.release.body', @bi.en(r.documentType.messageKey))}">Check the resident's valid ID…</p>
-                          <p lang="fil" th:text="${@bi.fil('staff.release.body', @bi.en(r.documentType.messageKey))}">Tingnan muna ang valid ID bago ibigay.</p>
+                          <p th:text="${@bi.t('staff.release.body', @bi.t(r.documentType.messageKey))}">Check the resident's valid ID…</p>
                           <div class="st-actions">
-                            <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel · Kanselahin</button>
-                            <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('staff.release')}">Release · Ibigay</button>
+                            <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel</button>
+                            <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('staff.release')}">Release</button>
                           </div>
                         </form>
                       </dialog>
                     </th:block>
                     <a th:case="*" class="pg-btn pg-btn--secondary" th:href="@{/staff/request/{t}(t=${r.ticketNumber})}"
-                       th:text="${@bi.t('staff.view')}">View · Tingnan</a>
+                       th:text="${@bi.t('staff.view')}">View</a>
                   </td>
                 </tr>
                 <tr th:if="${rows.isEmpty()}">
@@ -129,7 +128,7 @@
         <!-- Daily summary -->
         <aside class="st-summary">
           <h2><span th:text="${@bi.t('staff.summary.today')} + ' · ' + ${#temporals.format(today, 'MMM d')}">Today · Nov 17</span>
-            <small th:text="${@bi.t('staff.summary.title')}">Daily summary · Buod ngayon</small></h2>
+            <small th:text="${@bi.t('staff.summary.title')}">Daily summary</small></h2>
           <dl class="st-card st-stat">
             <dt th:text="${@bi.t('staff.summary.requests')}">Requests today</dt>
             <dd th:text="${summary.total}">24</dd>
@@ -141,7 +140,7 @@
             <p th:text="${@bi.t('staff.summary.fees.note', summary.paidCount)}">8 paid</p>
           </dl>
           <dl class="st-card st-stat">
-            <dt th:text="${@bi.t('status.for-signature')}">For signature · Para sa pirma</dt>
+            <dt th:text="${@bi.t('status.for-signature')}">For signature</dt>
             <dd th:text="${summary.forSignature}">4</dd>
             <p th:text="${@bi.t('staff.summary.oldest', summary.oldestSignatureMinutes)}">Oldest: 18 min ago</p>
           </dl>
@@ -158,11 +157,10 @@
         <dialog class="st-dialog" id="dlg-skip" th:if="${nowServing != null}">
           <form th:action="@{/staff/skip/{t}(t=${nowServing.ticketNumber})}" method="post">
             <h2 th:text="${@bi.t('staff.skip.title', nowServing.ticketNumber)}">Skip C-003?</h2>
-            <p th:text="${@bi.en('staff.skip.body')}">Use this only when the resident is not at the counter.</p>
-            <p lang="fil" th:text="${@bi.fil('staff.skip.body')}">Gamitin lang kapag wala ang residente sa counter.</p>
+            <p th:text="${@bi.t('staff.skip.body')}">Use this only when the resident is not at the counter.</p>
             <div class="st-actions">
-              <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel · Kanselahin</button>
-              <button class="pg-btn pg-btn--danger" type="submit" th:text="${@bi.t('staff.skip')}">Skip · Laktawan</button>
+              <button class="pg-btn pg-btn--secondary" type="submit" formmethod="dialog" formnovalidate th:text="${@bi.t('cta.cancel')}">Cancel</button>
+              <button class="pg-btn pg-btn--danger" type="submit" th:text="${@bi.t('staff.skip')}">Skip</button>
             </div>
           </form>
         </dialog>

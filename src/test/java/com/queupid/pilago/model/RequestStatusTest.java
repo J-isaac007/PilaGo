@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 
 import com.queupid.pilago.exception.InvalidStatusTransitionException;
+import com.queupid.pilago.exception.ReturnNoteRequiredException;
 import com.queupid.pilago.model.document.DocumentType;
 import com.queupid.pilago.model.document.Purpose;
 import com.queupid.pilago.model.person.Resident;
@@ -72,6 +73,30 @@ class RequestStatusTest {
         assertThat(req.getHoldNote()).isEqualTo("no ID");
         req.updateStatus(RequestStatus.WAITING, NOW);
         assertThat(req.getHoldReason()).isNull();
+    }
+
+    @Test
+    void captainCanReturnARequestWaitingForSignature() {
+        assertThat(RequestStatus.FOR_SIGNATURE.canTransitionTo(RequestStatus.ON_HOLD)).isTrue();
+
+        Request req = request(DocumentType.CERTIFICATE_OF_RESIDENCY, Purpose.SCHOOL);
+        assertThatThrownBy(() -> req.returnToSecretary(HoldReason.WRONG_DETAILS, null, NOW))
+                .as("only from For signature").isInstanceOf(InvalidStatusTransitionException.class);
+
+        req.updateStatus(RequestStatus.PROCESSING, NOW);
+        req.updateStatus(RequestStatus.FOR_SIGNATURE, NOW);
+        assertThatThrownBy(() -> req.returnToSecretary(HoldReason.MISSING_REQUIREMENT, null, NOW))
+                .as("not a captain reason").isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(() -> req.returnToSecretary(HoldReason.OTHER, "  ", NOW))
+                .isInstanceOf(ReturnNoteRequiredException.class);
+
+        req.returnToSecretary(HoldReason.ID_NEEDS_CHECKING, "ID photo is blurry", NOW);
+        assertThat(req.getStatus()).isEqualTo(RequestStatus.ON_HOLD);
+        assertThat(req.isReturnedByCaptain()).isTrue();
+        assertThat(req.getHoldNote()).isEqualTo("ID photo is blurry");
+
+        req.updateStatus(RequestStatus.WAITING, NOW);
+        assertThat(req.isReturnedByCaptain()).as("cleared when it leaves On hold").isFalse();
     }
 
     @Test

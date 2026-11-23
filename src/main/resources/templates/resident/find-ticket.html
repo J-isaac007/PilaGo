@@ -9,9 +9,9 @@
       <div th:replace="~{fragments/shared :: tip(${key}, ${notFound} ? 'warning' : '')}"></div>
       <div class="pg-stack">
         <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:href="@{/request/document}"
-           th:text="${@bi.t('resident.landing.get-ticket')}">Get a ticket · Kumuha ng tiket</a>
+           th:text="${@bi.t('resident.landing.get-ticket')}">Get a ticket</a>
         <a class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" th:href="@{/}"
-           th:text="${@bi.t('resident.cta.start')}">Back to start · Bumalik sa simula</a>
+           th:text="${@bi.t('resident.cta.start')}">Back to start</a>
       </div>
     </main>
   </body>

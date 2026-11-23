@@ -9,20 +9,17 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 /**
- * Prints copy in English and Filipino side by side. Templates call it as a bean:
+ * Prints page text from the messages files. Templates call it as a bean:
  * <pre>
- *   th:text="${@bi.t('cta.next')}"                  → Next · Susunod
- *   th:text="${@bi.t('resident.landing.waiting', 4)}" → 4 waiting · 4 naghihintay
- *   th:text="${@bi.en('resident.step1.tip')}"       → English line only
- *   th:text="${@bi.fil('resident.step1.tip')}"      → Filipino line only
- *   th:text="${@bi.fee(request.fee)}"               → ₱50.00, or Free · Libre
+ *   th:text="${@bi.t('cta.next')}"                    → Next
+ *   th:text="${@bi.t('resident.landing.waiting', 4)}" → 4 waiting
+ *   th:text="${@bi.fee(request.fee)}"                 → ₱50.00, or Free
  * </pre>
- * Each key {@code x} needs a twin {@code x.fil} in the messages files.
+ * The app was English and Filipino side by side until 2026-11-23; it is English-only now, matching
+ * the Figma. The bean keeps its short name {@code bi} so the templates did not have to change.
  */
 @Component("bi")
 public class Bilingual {
-
-    public static final String SEPARATOR = " · ";
 
     private final MessageSource messages;
 
@@ -30,20 +27,12 @@ public class Bilingual {
         this.messages = messages;
     }
 
-    /** "English · Filipino" on one line. */
+    /** The text for a key, with any {0}, {1}… filled in. */
     public String t(String key, Object... args) {
-        return en(key, args) + SEPARATOR + fil(key, args);
-    }
-
-    public String en(String key, Object... args) {
         return messages.getMessage(key, args, Locale.ROOT);
     }
 
-    public String fil(String key, Object... args) {
-        return messages.getMessage(key + ".fil", args, Locale.ROOT);
-    }
-
-    /** ₱50.00, or "Free · Libre" when the amount is zero. */
+    /** ₱50.00, or "Free" when the amount is zero. */
     public String fee(BigDecimal amount) {
         if (amount == null || amount.signum() == 0) {
             return t("fee.free");

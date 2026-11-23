@@ -167,6 +167,10 @@ public class RequestQueueService implements RequestQueue {
     @Override
     public synchronized void putOnHold(String ticket, HoldReason reason, String note) {
         Request request = require(ticket);
+        if (request.getStatus() != RequestStatus.WAITING && request.getStatus() != RequestStatus.PROCESSING) {
+            throw new InvalidStatusTransitionException(ticket, request.getStatus(), RequestStatus.ON_HOLD,
+                    "the secretary can only hold tickets that are waiting or at the counter");
+        }
         request.putOnHold(reason, note, now());
         leaveLineAndCounter(request);
         storage.save(request);
@@ -197,6 +201,13 @@ public class RequestQueueService implements RequestQueue {
     public synchronized void sign(String ticket) {
         Request request = require(ticket);
         request.updateStatus(RequestStatus.READY, now());
+        storage.save(request);
+    }
+
+    @Override
+    public synchronized void returnToSecretary(String ticket, HoldReason reason, String note) {
+        Request request = require(ticket);
+        request.returnToSecretary(reason, note, now());
         storage.save(request);
     }
 

@@ -31,12 +31,12 @@ class ResidentFlowTest {
     @Test
     void publicPagesLoad() throws Exception {
         mvc.perform(get("/")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Get a ticket · Kumuha ng tiket")))
-                .andExpect(content().string(containsString("Priority · Prayoridad")));
+                .andExpect(content().string(containsString("Get a ticket")))
+                .andExpect(content().string(containsString("Priority")));
         mvc.perform(get("/request/document")).andExpect(status().isOk())
                 .andExpect(content().string(containsString("Certificate of Residency")));
         mvc.perform(get("/display")).andExpect(status().isOk())
-                .andExpect(content().string(containsString("Go to Counter 1 · Pumunta sa Counter 1")));
+                .andExpect(content().string(containsString("Go to Counter 1")));
         mvc.perform(get("/display/board")).andExpect(status().isOk());
         mvc.perform(get("/ticket")).andExpect(status().isOk()).andExpect(view().name("resident/find-ticket"));
     }
@@ -60,8 +60,8 @@ class ResidentFlowTest {
         String ticketUrl = issued.getResponse().getRedirectedUrl();
         String page = mvc.perform(get(ticketUrl)).andExpect(status().isOk()).andReturn()
                 .getResponse().getContentAsString();
-        assertThat(page).contains("S-0").contains("Waiting · Naghihintay")
-                .contains("Wait for your number to be called · Hintayin ang iyong numero")
+        assertThat(page).contains("S-0").contains("Waiting")
+                .contains("Wait for your number to be called")
                 .contains("When called, go to the counter");
         mvc.perform(get(ticketUrl + "/live")).andExpect(status().isOk());
     }

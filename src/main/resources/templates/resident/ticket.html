@@ -20,10 +20,10 @@
           <div class="pg-stack">
             <section class="pg-ticket" aria-live="polite"
                      th:classappend="${called} ? 'pg-ticket--called' : (${status.name() == 'NO_SHOW'} ? 'pg-ticket--skipped' : '')">
-              <p class="pg-ticket__eyebrow" th:text="${@bi.t('resident.ticket.title')}">Your ticket · Ang iyong tiket</p>
+              <p class="pg-ticket__eyebrow" th:text="${@bi.t('resident.ticket.title')}">Your ticket</p>
               <p class="pg-ticket__number" th:text="${ticket.ticketNumber}">S-012</p>
               <span class="pg-tag" th:classappend="'pg-tag--' + ${ticket.priorityGroup.cssModifier}"
-                    th:text="${@bi.t(ticket.priorityGroup.messageKey)}">Senior 60+ · Nakatatanda</span>
+                    th:text="${@bi.t(ticket.priorityGroup.messageKey)}">Senior 60+</span>
               <span class="pg-ticket__rule"></span>
               <div class="pg-ticket__meta" th:if="${status.name() == 'WAITING'}">
                 <div>
@@ -36,8 +36,8 @@
                 </div>
               </div>
               <p class="pg-ticket__doc">
-                <span th:text="${@bi.en(ticket.documentType.messageKey)}">Barangay Clearance</span> ·
-                <span th:text="${@bi.t(ticket.purpose.messageKey)}">Employment · Trabaho</span>
+                <span th:text="${@bi.t(ticket.documentType.messageKey)}">Barangay Clearance</span> ·
+                <span th:text="${@bi.t(ticket.purpose.messageKey)}">Employment</span>
               </p>
             </section>
             <p class="pg-muted" th:if="${active}" th:text="${@bi.t('resident.ticket.save')}">Save this link.</p>
@@ -46,9 +46,9 @@
           <div class="pg-stack">
             <section class="pg-panel">
               <div class="pg-panel__head">
-                <h2 class="pg-h3" th:text="${@bi.t('resident.ticket.status')}">Status · Katayuan</h2>
+                <h2 class="pg-h3" th:text="${@bi.t('resident.ticket.status')}">Status</h2>
                 <span class="pg-badge" th:classappend="'pg-badge--' + ${status.cssModifier}"
-                      th:text="${@bi.t(status.messageKey)}">Waiting · Naghihintay</span>
+                      th:text="${@bi.t(status.messageKey)}">Waiting</span>
               </div>
               <p class="pg-secondary" th:if="${status.name() == 'WAITING'}"
                  th:text="${@bi.t('resident.ticket.wait', waitMinutes)}">About 12 min</p>
@@ -60,35 +60,34 @@
                     th:attr="aria-current=${it.index == currentStep} ? 'step' : null">
                   <span class="pg-tracker__dot" aria-hidden="true"></span>
                   <span class="pg-tracker__text">
-                    <b th:text="${@bi.t(step.messageKey)}">Waiting · Naghihintay</b>
+                    <b th:text="${@bi.t(step.messageKey)}">Waiting</b>
                     <span th:if="${it.index == currentStep}" th:text="${@bi.t('resident.tracker.' + step.cssModifier)}">Wait for your number to be called</span>
-                    <span th:if="${it.index < currentStep}" th:text="${@bi.t('resident.tracker.done')}">Done · Tapos</span>
+                    <span th:if="${it.index < currentStep}" th:text="${@bi.t('resident.tracker.done')}">Done</span>
                   </span>
                 </li>
               </ol>
               <th:block th:if="${ticket.holdReason != null}">
-                <p th:text="${@bi.en(ticket.holdReason.messageKey)}">Lived here less than 6 months.</p>
-                <p class="pg-secondary" lang="fil" th:text="${@bi.fil(ticket.holdReason.messageKey)}">Wala pang 6 na buwan.</p>
+                <p th:text="${@bi.t(ticket.holdReason.messageKey)}">Lived here less than 6 months.</p>
                 <p class="pg-secondary" th:if="${ticket.holdNote != null}" th:text="${ticket.holdNote}">Note</p>
               </th:block>
             </section>
 
             <div class="pg-banner" th:if="${status.name() == 'WAITING'}">
-              <b th:text="${@bi.t('resident.ticket.called-banner')}">When called, go to the counter · Pumunta sa counter kapag tinawag</b>
+              <b th:text="${@bi.t('resident.ticket.called-banner')}">When called, go to the counter</b>
               <span th:text="${@bi.t('resident.ticket.called-banner.note')}">If you are not there when called, your ticket is skipped.</span>
             </div>
 
             <div class="pg-feebox" th:unless="${ticket.free}">
-              <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter · Bayad sa counter</b>
+              <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter</b>
               <strong class="pg-feebox__amount" th:text="${@bi.fee(ticket.fee)}">₱50.00</strong>
             </div>
 
             <div class="pg-stack">
               <button class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
-                      data-copy th:text="${@bi.t('resident.ticket.copy')}">Copy link · Kopyahin ang link</button>
-              <span id="copied" hidden th:text="${@bi.t('resident.ticket.copied')}">Link copied · Nakopya na</span>
+                      data-copy th:text="${@bi.t('resident.ticket.copy')}">Copy link</button>
+              <span id="copied" hidden th:text="${@bi.t('resident.ticket.copied')}">Link copied</span>
               <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:unless="${active}" th:href="@{/request/document}"
-                 th:text="${@bi.t('resident.cta.new-ticket')}">Get a new ticket · Kumuha ng bagong tiket</a>
+                 th:text="${@bi.t('resident.cta.new-ticket')}">Get a new ticket</a>
             </div>
           </div>
         </div>
