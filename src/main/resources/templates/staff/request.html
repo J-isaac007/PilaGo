@@ -101,6 +101,7 @@
 
             <!-- On hold -->
             <th:block th:if="${status == 'ON_HOLD'}">
+              <p class="pg-callout" th:if="${ticket.returnedByCaptain}" th:text="${@bi.t('staff.returned-by-captain')}">Returned by the captain.</p>
               <div class="st-check st-check--hold" th:if="${ticket.holdReason != null}">
                 <svg th:replace="~{staff/fragments :: alert}"></svg>
                 <div><b th:text="${@bi.t(ticket.holdReason.messageKey)}">A requirement is missing.</b>

@@ -4,7 +4,7 @@
   <body class="pg-root">
     <header th:replace="~{staff/fragments :: header}"></header>
 
-    <!-- S4 / S11 · For signature, S5 / S12 · Nothing to sign -->
+    <!-- S4 / S11 · For signature, S4B / S11b · Return to secretary, S5 / S12 · Nothing to sign -->
     <main class="st-page">
       <div class="st-layout" th:style="${selected == null} ? 'grid-template-columns: 1fr' : ''">
         <div class="st-main">
@@ -37,10 +37,13 @@
               <span class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free</span>
               <div class="st-actions">
                 <a class="pg-btn pg-btn--secondary" th:href="@{/captain(view=${r.ticketNumber})}" th:text="${@bi.t('captain.view')}">View</a>
+                <button class="pg-btn pg-btn--secondary" type="button" th:attr="data-open=${'dlg-return-' + r.ticketNumber}"
+                        th:text="${@bi.t('captain.return')}">Return to secretary</button>
                 <form th:action="@{/captain/sign/{t}(t=${r.ticketNumber})}" method="post">
                   <button class="pg-btn pg-btn--accent" type="submit" th:text="${@bi.t('captain.sign')}">Sign</button>
                 </form>
               </div>
+              <th:block th:replace="~{captain/fragments :: returnDialog(${r}, ${'dlg-return-' + r.ticketNumber})}"></th:block>
             </article>
           </div>
         </div>
@@ -65,10 +68,14 @@
             <button class="pg-btn pg-btn--lg pg-btn--accent pg-btn--block" type="submit" th:text="${@bi.t('captain.sign')}">Sign</button>
           </form>
           <p class="pg-muted" th:text="${@bi.t('captain.sign.note')}">Signing marks it Ready</p>
+          <button class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" data-open="dlg-return-detail"
+                  th:text="${@bi.t('captain.return')}">Return to secretary</button>
+          <th:block th:replace="~{captain/fragments :: returnDialog(${r}, 'dlg-return-detail')}"></th:block>
         </aside>
       </div>
     </main>
 
     <th:block th:replace="~{staff/fragments :: toasts}"></th:block>
+    <script th:replace="~{staff/fragments :: dialogs}"></script>
   </body>
 </html>
