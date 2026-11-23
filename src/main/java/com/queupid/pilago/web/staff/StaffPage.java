@@ -1,5 +1,6 @@
 package com.queupid.pilago.web.staff;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Duration;
@@ -9,7 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -155,6 +159,19 @@ public class StaffPage {
         model.addAttribute("summary", summary());
         model.addAttribute("today", LocalDate.now(clock));
         return htmx != null ? "staff/dashboard :: board" : "staff/dashboard";
+    }
+
+    /** P4 · Download today's tickets as a CSV file (secretary only, like everything under /staff). */
+    @GetMapping("/report.csv")
+    public ResponseEntity<byte[]> report(Principal principal) {
+        current.require(principal, StaffAction.VIEW_DAILY_SUMMARY);
+        String csv = new ReportCsv(key -> bi.en(key)).render(queue.getAllToday());
+        String filename = "pilago-report-" + LocalDate.now(clock) + ".csv";
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"")
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+                .body(csv.getBytes(StandardCharsets.UTF_8));
     }
 
     @PostMapping("/call-next")
