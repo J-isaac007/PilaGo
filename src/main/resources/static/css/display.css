@@ -39,3 +39,10 @@ body.tv { height: 100vh; overflow: hidden; display: grid; grid-template-rows: au
 .tv-foot { background: var(--bg-inverse-raised); padding: 1rem 2rem; border-top: 1px solid var(--border-inverse); }
 .tv-foot p { margin: 0; font-size: 1.6rem; font-weight: 700; }
 .tv-foot p + p { color: var(--text-on-inverse-muted); margin-top: .2rem; }
+
+.tv-hero--flash { animation: tv-flash .75s ease-in-out 4; }
+@keyframes tv-flash { 50% { opacity: .2; } }
+.tv-sound { font: inherit; font-weight: 800; padding: .5rem 1rem; border-radius: 999px;
+            border: 2px solid currentColor; background: transparent; color: inherit; cursor: pointer; }
+.tv-sound--on { opacity: .6; }
+@media (prefers-reduced-motion: reduce) { .tv-hero--flash { animation: none; } }
