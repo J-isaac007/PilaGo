@@ -1,88 +1,116 @@
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-  <head th:replace="~{fragments/shared :: head('Your details', false)}"></head>
-  <body class="pg-root">
-    <header th:replace="~{fragments/shared :: header}"></header>
+  <head th:replace="~{fragments/shared :: head('Your details')}"></head>
+  <body>
+    <div class="app">
+      <header th:replace="~{fragments/shared :: header}"></header>
 
-    <!-- R3 / R13 · Step 2, your details -->
-    <form th:action="@{/request/details}" th:object="${form}" method="post" novalidate>
-      <main class="pg-page">
-        <div th:replace="~{fragments/shared :: stepper(2)}"></div>
-        <div th:replace="~{fragments/shared :: tip('resident.step2.tip', '')}"></div>
+      <!-- R4 (Review) is not built yet; this posts to /request/review -->
+      <form th:action="@{/request/review}" method="post">
+        <input type="hidden" name="doc" th:value="${doc}" />
+        <input type="hidden" name="purpose" th:value="${purpose}" />
+        <main class="page">
+          <div
+            th:replace="~{fragments/shared :: stepper(2, 'Your details · Detalye')}"
+          ></div>
 
-        <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.name')}">Full name · Buong pangalan</span>
-          <input class="pg-input" type="text" th:field="*{fullName}" autocomplete="name" placeholder="Dela Cruz, Juan M."
-                 th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" />
-          <span class="pg-muted" th:text="${@bi.t('resident.field.name.hint')}">Last name, First name, M.I.</span>
-          <span class="pg-error" th:if="${#fields.hasErrors('fullName')}" th:text="${#fields.errors('fullName')[0]}">Enter your full name</span>
-        </label>
+          <label class="f"
+            >Full name · Buong pangalan
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Dela Cruz, Juan M."
+              required
+            />
+            <span class="muted">Last name, First name, M.I.</span></label
+          >
 
-        <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.age')}">Age · Edad</span>
-          <!-- Text, not number: letters are caught on the server and explained (see ResidentPage). -->
-          <input class="pg-input" type="text" inputmode="numeric" th:field="*{age}" id="age" placeholder="64"
-                 th:classappend="${#fields.hasErrors('age')} ? 'is-invalid'" />
-          <span class="pg-error" th:if="${#fields.hasErrors('age')}" th:text="${#fields.errors('age')[0]}">Numbers only</span>
-          <span><span class="pg-tag pg-tag--senior" id="seniorTag" hidden th:text="${@bi.t('priority.senior')}">Senior 60+ · Nakatatanda</span></span>
-        </label>
+          <label class="f"
+            >Age · Edad
+            <input
+              type="text"
+              name="age"
+              id="age"
+              inputmode="numeric"
+              placeholder="64"
+              required
+            />
+            <span
+              class="error"
+              th:if="${ageError}"
+              th:text="${ageError}"
+            ></span>
+            <span
+              ><span class="tag tag--senior" id="seniorTag" hidden
+                >Senior 60+ · Nakatatanda</span
+              ></span
+            ></label
+          >
 
-        <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.address')}">Address · Tirahan</span>
-          <input class="pg-input" type="text" th:field="*{address}" autocomplete="street-address" placeholder="123 Rizal St., Purok 4"
-                 th:classappend="${#fields.hasErrors('address')} ? 'is-invalid'" />
-          <span class="pg-muted" th:text="${@bi.t('resident.field.address.hint')}">House no., street, purok</span>
-          <span class="pg-error" th:if="${#fields.hasErrors('address')}" th:text="${#fields.errors('address')[0]}">Enter your address</span>
-        </label>
+          <label class="f"
+            >Address · Tirahan
+            <input
+              type="text"
+              name="address"
+              placeholder="123 Rizal St., Purok 4"
+              required
+            />
+            <span class="muted">House no., street, purok</span></label
+          >
 
-        <fieldset class="pg-fieldset">
-          <legend class="pg-field__label" th:text="${@bi.t('resident.field.residency')}">How long have you lived here?</legend>
-          <div class="pg-row2">
-            <label class="pg-field">
-              <span class="pg-field__label" th:text="${@bi.t('resident.field.years')}">Years · Taon</span>
-              <input class="pg-input" type="number" min="0" max="130" inputmode="numeric" th:field="*{residencyYears}"
-                     th:classappend="${#fields.hasErrors('residencyYears')} ? 'is-invalid'" />
-            </label>
-            <label class="pg-field">
-              <span class="pg-field__label" th:text="${@bi.t('resident.field.months')}">Months · Buwan</span>
-              <input class="pg-input" type="number" min="0" max="11" inputmode="numeric" th:field="*{residencyMonths}"
-                     th:classappend="${#fields.hasErrors('residencyMonths')} ? 'is-invalid'" />
-            </label>
+          <div>
+            <b style="font-size: 0.9rem"
+              >How long have you lived here? · Gaano katagal ka nang nakatira
+              dito?</b
+            >
+            <div class="row" style="margin-top: 0.5rem">
+              <label class="f"
+                >Years · Taon
+                <input type="number" name="years" min="0" value="0"
+              /></label>
+              <label class="f"
+                >Months · Buwan
+                <input type="number" name="months" min="0" max="11" value="0"
+              /></label>
+            </div>
+            <p class="muted" style="margin-top: 0.5rem">
+              At least 6 months · Dapat 6 na buwan o higit na nakatira dito.
+            </p>
           </div>
-          <span class="pg-muted" th:text="${@bi.t('resident.field.residency.hint')}">At least 6 months</span>
-          <span class="pg-error" th:if="${#fields.hasErrors('residencyYears')}" th:text="${#fields.errors('residencyYears')[0]}">Years</span>
-          <span class="pg-error" th:if="${#fields.hasErrors('residencyMonths')}" th:text="${#fields.errors('residencyMonths')[0]}">Months</span>
-        </fieldset>
 
-        <label class="pg-card pg-check">
-          <input type="checkbox" th:field="*{pwd}" />
-          <span>
-            <b th:text="${@bi.t('resident.field.pwd')}">I am a PWD · Ako ay may kapansanan</b>
-            <span class="pg-secondary" th:text="${@bi.t('resident.field.pwd.hint')}">Bring your PWD ID.</span>
-          </span>
-        </label>
-        <label class="pg-card pg-check">
-          <input type="checkbox" th:field="*{hasPendingRecord}" />
-          <span>
-            <b th:text="${@bi.t('resident.field.record')}">Pending barangay record · May kaso sa barangay</b>
-            <span class="pg-secondary" th:text="${@bi.t('resident.field.record.hint')}">The secretary will check it first.</span>
-          </span>
-        </label>
-
-        <div class="pg-actions">
-          <a class="pg-btn pg-btn--lg pg-btn--secondary" th:href="@{/request/document}" th:text="${@bi.t('cta.back')}">Back · Bumalik</a>
-          <button class="pg-btn pg-btn--lg pg-btn--primary" type="submit" th:text="${@bi.t('resident.cta.review')}">Review · Suriin</button>
+          <label class="check"
+            ><input type="checkbox" name="pwd" />
+            <span
+              ><b>I am a PWD · Ako ay may kapansanan</b>
+              <p>Bring your PWD ID · Dalhin ang PWD ID. Uunahin ka.</p></span
+            ></label
+          >
+          <label class="check"
+            ><input type="checkbox" name="hasRecord" />
+            <span
+              ><b>Pending barangay record · May kaso sa barangay</b>
+              <p>Susuriin muna ito ng kalihim.</p></span
+            ></label
+          >
+        </main>
+        <div class="sticky">
+          <button class="btn btn--primary" type="submit">
+            Review · Suriin
+          </button>
+          <a class="btn btn--ghost" th:href="@{/request/document}"
+            >Back · Bumalik</a
+          >
         </div>
-      </main>
-    </form>
+      </form>
+    </div>
 
     <script>
-      // Shows the Senior tag as soon as the age is 60 or more. The server decides the real priority.
-      const age = document.getElementById("age");
-      const tag = document.getElementById("seniorTag");
-      const update = () => { tag.hidden = !(parseInt(age.value, 10) >= 60); };
-      age.addEventListener("input", update);
-      update();
+      // Show the Senior badge as soon as the age is 60 or more (the server re-checks it).
+      document.getElementById("age").addEventListener("input", (e) => {
+        document.getElementById("seniorTag").hidden = !(
+          parseInt(e.target.value, 10) >= 60
+        );
+      });
     </script>
   </body>
 </html>
