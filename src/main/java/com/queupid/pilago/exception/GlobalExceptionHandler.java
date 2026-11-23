@@ -19,7 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * Example: pressing Call next while a ticket is still at the counter throws {@link QueueBusyException};
  * the secretary sees "Finish the ticket at the counter first." and stays on the dashboard.
  *
- * <p>Anything else (wrong role, missing page, a bug) falls through to the bilingual error pages in
+ * <p>Anything else (wrong role, missing page, a bug) falls through to the error pages in
  * {@code templates/error/}.
  */
 @ControllerAdvice(assignableTypes = { StaffPage.class, CaptainPage.class })

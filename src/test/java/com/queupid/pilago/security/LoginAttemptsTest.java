@@ -43,6 +43,25 @@ class LoginAttemptsTest {
     }
 
     @Test
+    void wrongTriesFarApartDoNotAddUp() {
+        fail("SEC-001", 4);
+        clock.plus(Duration.ofMinutes(10));
+        fail("SEC-001", 4); // a fresh count, not 8
+        assertThat(attempts.isLocked("SEC-001")).isFalse();
+    }
+
+    @Test
+    void madeUpStaffIdsAreForgottenAfterAWhile() {
+        for (int i = 0; i < 100; i++) {
+            fail("NOBODY-" + i, 1);
+        }
+        assertThat(attempts.trackedIds()).isEqualTo(100);
+        clock.plus(Duration.ofMinutes(10));
+        fail("SEC-001", 1);
+        assertThat(attempts.trackedIds()).isEqualTo(1);
+    }
+
+    @Test
     void successResetsTheCountAndIdsAreIndependent() {
         fail("SEC-001", 4);
         attempts.recordSuccess("SEC-001");

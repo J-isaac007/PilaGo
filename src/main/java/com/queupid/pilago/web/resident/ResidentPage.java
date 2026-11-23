@@ -206,7 +206,7 @@ public class ResidentPage {
         model.addAttribute("fees", feeTable());
     }
 
-    /** "₱0–50" or "Free · Libre" for each document, from the documents' own fee rules. */
+    /** "₱0–50" or "Free" for each document, from the documents' own fee rules. */
     private Map<DocumentType, String> feeRanges() {
         Map<DocumentType, String> ranges = new EnumMap<>(DocumentType.class);
         for (DocumentType type : DocumentType.values()) {

@@ -43,7 +43,7 @@ public abstract class Document implements Payable {
         return type;
     }
 
-    /** English name; the bilingual label is {@code getType().getMessageKey()}. */
+    /** English name; the label shown on pages is {@code getType().getMessageKey()}. */
     public String getDocumentName() {
         return type.getEnglishName();
     }
