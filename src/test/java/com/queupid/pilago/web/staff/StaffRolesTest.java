@@ -54,6 +54,12 @@ class StaffRolesTest {
     }
 
     @Test
+    void theLoginPageSendsSomeoneAlreadyLoggedInHome() throws Exception {
+        mvc.perform(get("/login").with(SECRETARY)).andExpect(redirectedUrl("/staff"));
+        mvc.perform(get("/login").with(CAPTAIN)).andExpect(redirectedUrl("/captain"));
+    }
+
+    @Test
     void loginSendsEachRoleHome() throws Exception {
         mvc.perform(post("/login").with(csrf()).param("staffId", "sec-001").param("password", "secretary123"))
                 .andExpect(redirectedUrl("/staff"));
@@ -114,7 +120,7 @@ class StaffRolesTest {
     }
 
     @Test
-    void wrongPagesShowBilingualErrors() throws Exception {
+    void wrongPagesShowFriendlyErrors() throws Exception {
         mvc.perform(get("/staff/request/Z-999").with(SECRETARY)).andExpect(status().isNotFound());
         mvc.perform(get("/no-such-page")).andExpect(status().isNotFound());
     }
