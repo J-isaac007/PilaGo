@@ -63,7 +63,11 @@ class ResidentFlowTest {
         assertThat(page).contains("S-0").contains("Waiting")
                 .contains("Wait for your number to be called")
                 .contains("When called, go to the counter");
-        mvc.perform(get(ticketUrl + "/live")).andExpect(status().isOk());
+        // C1 "Your turn" alert: the sound button, the texts the script reads, and the script itself
+        assertThat(page).contains("Turn on sound").contains("id=\"turn-title\"").contains("/js/ticket-alert.js");
+        String live = mvc.perform(get(ticketUrl + "/live")).andExpect(status().isOk()).andReturn()
+                .getResponse().getContentAsString();
+        assertThat(live).contains("id=\"sound-btn\"").contains("hx-preserve"); // kept as it is across refreshes
     }
 
     @Test

@@ -4,11 +4,12 @@
   <body class="pg-root">
     <header th:replace="~{fragments/shared :: header}"></header>
 
-    <!-- R5–R9 / R15–R19 · The resident's ticket. Only the "live" part refreshes. -->
+    <!-- R5–R9 / R15–R19 · The resident's ticket. Only the "live" part refreshes (every 3 s, so the
+         "Your turn" alert in js/ticket-alert.js comes within about 3 s of Call next). -->
     <main class="pg-page">
       <div th:fragment="live" id="live" class="pg-stack"
            th:attr="hx-get=${active} ? @{/ticket/{t}/live(t=${ticket.token})} : null,
-                    hx-trigger=${active} ? 'every 5s' : null,
+                    hx-trigger=${active} ? 'every 3s' : null,
                     hx-swap=${active} ? 'outerHTML' : null"
            th:with="status=${ticket.status}, tipKey=${'resident.ticket.tip.' + status.cssModifier}">
 
@@ -83,6 +84,9 @@
             </div>
 
             <div class="pg-stack">
+              <!-- hx-preserve: the refresh keeps this button as it is, so "Sound on" stays after a tap -->
+              <button id="sound-btn" class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
+                      hx-preserve th:text="${@bi.t('resident.ticket.sound-on')}">Turn on sound</button>
               <button class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
                       data-copy th:text="${@bi.t('resident.ticket.copy')}">Copy link</button>
               <span id="copied" hidden th:text="${@bi.t('resident.ticket.copied')}">Link copied</span>
@@ -92,8 +96,11 @@
           </div>
         </div>
       </div>
+      <span id="sound-done" hidden th:text="${@bi.t('resident.ticket.sound-done')}">Sound on</span>
+      <span id="turn-title" hidden th:text="${@bi.t('resident.ticket.your-turn')}">Your turn!</span>
     </main>
 
+    <script th:src="@{/js/ticket-alert.js}" defer></script>
     <script>
       // Copy this page's link (it holds the ticket's secret token). Works after htmx swaps too.
       document.addEventListener("click", async (e) => {
