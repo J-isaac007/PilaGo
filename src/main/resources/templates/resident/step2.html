@@ -11,7 +11,7 @@
         <div th:replace="~{fragments/shared :: tip('resident.step2.tip', '')}"></div>
 
         <label class="pg-field">
-          <span class="pg-field__label" th:text="${@bi.t('resident.field.name')}">Full name · Buong pangalan</span>
+          <span class="pg-field__label" th:text="${@bi.t('resident.field.name')}">Full name</span>
           <input class="pg-input" type="text" th:field="*{fullName}" autocomplete="name" placeholder="Dela Cruz, Juan M."
                  th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'" />
           <span class="pg-muted" th:text="${@bi.t('resident.field.name.hint')}">Last name, First name, M.I.</span>

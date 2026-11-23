@@ -4,212 +4,100 @@
   <body class="pg-root">
     <header th:replace="~{fragments/shared :: header}"></header>
 
-    <!-- R5–R9 / R15–R19 · The resident's ticket. Only the "live" part refreshes. -->
+    <!-- R5–R9 / R15–R19 · The resident's ticket. Only the "live" part refreshes (every 3 s, so the
+         "Your turn" alert in js/ticket-alert.js comes within about 3 s of Call next). -->
     <main class="pg-page">
-      <button
-        id="sound-btn"
-        class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block"
-        type="button"
-        th:if="${active}"
-        th:text="${@bi.t('resident.ticket.sound-on')}"
-      >
-        Turn on sound
-      </button>
-      <span
-        id="sound-done"
-        hidden
-        th:text="${@bi.t('resident.ticket.sound-done')}"
-        >Sound on</span
-      >
-      <span
-        id="turn-title"
-        hidden
-        th:text="${@bi.t('resident.ticket.your-turn')}"
-        >Your turn!</span
-      >
-      <div
-        th:fragment="live"
-        id="live"
-        class="pg-stack"
-        th:attr="hx-get=${active} ? @{/ticket/{t}/live(t=${ticket.token})} : null,
-                    hx-trigger=${active} ? 'every 5s' : null,
+      <div th:fragment="live" id="live" class="pg-stack"
+           th:attr="hx-get=${active} ? @{/ticket/{t}/live(t=${ticket.token})} : null,
+                    hx-trigger=${active} ? 'every 3s' : null,
                     hx-swap=${active} ? 'outerHTML' : null"
-        th:with="status=${ticket.status}, tipKey=${'resident.ticket.tip.' + status.cssModifier}"
-      >
-        <div
-          th:replace="~{fragments/shared :: tip(${tipKey},
+           th:with="status=${ticket.status}, tipKey=${'resident.ticket.tip.' + status.cssModifier}">
+
+        <div th:replace="~{fragments/shared :: tip(${tipKey},
                 ${called} ? 'highlight' : (${status.name() == 'ON_HOLD' or status.name() == 'NO_SHOW'} ? 'warning'
-                : (${status.name() == 'READY'} ? 'success' : '')))}"
-        ></div>
+                : (${status.name() == 'READY'} ? 'success' : '')))}"></div>
 
         <div class="pg-ticket-layout pg-stack">
           <div class="pg-stack">
-            <section
-              class="pg-ticket"
-              aria-live="polite"
-              th:classappend="${called} ? 'pg-ticket--called' : (${status.name() == 'NO_SHOW'} ? 'pg-ticket--skipped' : '')"
-            >
-              <p
-                class="pg-ticket__eyebrow"
-                th:text="${@bi.t('resident.ticket.title')}"
-              >
-                Your ticket
-              </p>
-              <p class="pg-ticket__number" th:text="${ticket.ticketNumber}">
-                S-012
-              </p>
-              <span
-                class="pg-tag"
-                th:classappend="'pg-tag--' + ${ticket.priorityGroup.cssModifier}"
-                th:text="${@bi.t(ticket.priorityGroup.messageKey)}"
-                >Senior 60+</span
-              >
+            <section class="pg-ticket" aria-live="polite"
+                     th:classappend="${called} ? 'pg-ticket--called' : (${status.name() == 'NO_SHOW'} ? 'pg-ticket--skipped' : '')">
+              <p class="pg-ticket__eyebrow" th:text="${@bi.t('resident.ticket.title')}">Your ticket</p>
+              <p class="pg-ticket__number" th:text="${ticket.ticketNumber}">S-012</p>
+              <span class="pg-tag" th:classappend="'pg-tag--' + ${ticket.priorityGroup.cssModifier}"
+                    th:text="${@bi.t(ticket.priorityGroup.messageKey)}">Senior 60+</span>
               <span class="pg-ticket__rule"></span>
-              <div
-                class="pg-ticket__meta"
-                th:if="${status.name() == 'WAITING'}"
-              >
+              <div class="pg-ticket__meta" th:if="${status.name() == 'WAITING'}">
                 <div>
-                  <p
-                    class="pg-ticket__label"
-                    th:text="${@bi.t('resident.ticket.now-serving')}"
-                  >
-                    Now serving
-                  </p>
+                  <p class="pg-ticket__label" th:text="${@bi.t('resident.ticket.now-serving')}">Now serving</p>
                   <p class="pg-ticket__value" th:text="${nowServing}">C-009</p>
                 </div>
                 <div>
-                  <p
-                    class="pg-ticket__label"
-                    th:text="${@bi.t('resident.ticket.ahead')}"
-                  >
-                    Ahead of you
-                  </p>
+                  <p class="pg-ticket__label" th:text="${@bi.t('resident.ticket.ahead')}">Ahead of you</p>
                   <p class="pg-ticket__value" th:text="${ahead}">2</p>
                 </div>
               </div>
               <p class="pg-ticket__doc">
-                <span th:text="${@bi.t(ticket.documentType.messageKey)}"
-                  >Barangay Clearance</span
-                >
-                ·
-                <span th:text="${@bi.t(ticket.purpose.messageKey)}"
-                  >Employment</span
-                >
+                <span th:text="${@bi.t(ticket.documentType.messageKey)}">Barangay Clearance</span> ·
+                <span th:text="${@bi.t(ticket.purpose.messageKey)}">Employment</span>
               </p>
             </section>
-            <p
-              class="pg-muted"
-              th:if="${active}"
-              th:text="${@bi.t('resident.ticket.save')}"
-            >
-              Save this link.
-            </p>
+            <p class="pg-muted" th:if="${active}" th:text="${@bi.t('resident.ticket.save')}">Save this link.</p>
           </div>
 
           <div class="pg-stack">
             <section class="pg-panel">
               <div class="pg-panel__head">
-                <h2 class="pg-h3" th:text="${@bi.t('resident.ticket.status')}">
-                  Status
-                </h2>
-                <span
-                  class="pg-badge"
-                  th:classappend="'pg-badge--' + ${status.cssModifier}"
-                  th:text="${@bi.t(status.messageKey)}"
-                  >Waiting</span
-                >
+                <h2 class="pg-h3" th:text="${@bi.t('resident.ticket.status')}">Status</h2>
+                <span class="pg-badge" th:classappend="'pg-badge--' + ${status.cssModifier}"
+                      th:text="${@bi.t(status.messageKey)}">Waiting</span>
               </div>
-              <p
-                class="pg-secondary"
-                th:if="${status.name() == 'WAITING'}"
-                th:text="${@bi.t('resident.ticket.wait', waitMinutes)}"
-              >
-                About 12 min
-              </p>
+              <p class="pg-secondary" th:if="${status.name() == 'WAITING'}"
+                 th:text="${@bi.t('resident.ticket.wait', waitMinutes)}">About 12 min</p>
 
               <!-- Status tracker (Figma "Status tracker"): done, current and upcoming steps -->
               <ol class="pg-tracker" th:if="${currentStep >= 0}">
-                <li
-                  th:each="step, it : ${trackerSteps}"
-                  th:class="${it.index < currentStep} ? 'is-done' : (${it.index == currentStep} ? 'is-current' : '')"
-                  th:attr="aria-current=${it.index == currentStep} ? 'step' : null"
-                >
+                <li th:each="step, it : ${trackerSteps}"
+                    th:class="${it.index < currentStep} ? 'is-done' : (${it.index == currentStep} ? 'is-current' : '')"
+                    th:attr="aria-current=${it.index == currentStep} ? 'step' : null">
                   <span class="pg-tracker__dot" aria-hidden="true"></span>
                   <span class="pg-tracker__text">
                     <b th:text="${@bi.t(step.messageKey)}">Waiting</b>
-                    <span
-                      th:if="${it.index == currentStep}"
-                      th:text="${@bi.t('resident.tracker.' + step.cssModifier)}"
-                      >Wait for your number to be called</span
-                    >
-                    <span
-                      th:if="${it.index < currentStep}"
-                      th:text="${@bi.t('resident.tracker.done')}"
-                      >Done</span
-                    >
+                    <span th:if="${it.index == currentStep}" th:text="${@bi.t('resident.tracker.' + step.cssModifier)}">Wait for your number to be called</span>
+                    <span th:if="${it.index < currentStep}" th:text="${@bi.t('resident.tracker.done')}">Done</span>
                   </span>
                 </li>
               </ol>
               <th:block th:if="${ticket.holdReason != null}">
-                <p th:text="${@bi.t(ticket.holdReason.messageKey)}">
-                  Lived here less than 6 months.
-                </p>
-                <p
-                  class="pg-secondary"
-                  th:if="${ticket.holdNote != null}"
-                  th:text="${ticket.holdNote}"
-                >
-                  Note
-                </p>
+                <p th:text="${@bi.t(ticket.holdReason.messageKey)}">Lived here less than 6 months.</p>
+                <p class="pg-secondary" th:if="${ticket.holdNote != null}" th:text="${ticket.holdNote}">Note</p>
               </th:block>
             </section>
 
             <div class="pg-banner" th:if="${status.name() == 'WAITING'}">
-              <b th:text="${@bi.t('resident.ticket.called-banner')}"
-                >When called, go to the counter</b
-              >
-              <span th:text="${@bi.t('resident.ticket.called-banner.note')}"
-                >If you are not there when called, your ticket is skipped.</span
-              >
+              <b th:text="${@bi.t('resident.ticket.called-banner')}">When called, go to the counter</b>
+              <span th:text="${@bi.t('resident.ticket.called-banner.note')}">If you are not there when called, your ticket is skipped.</span>
             </div>
 
             <div class="pg-feebox" th:unless="${ticket.free}">
-              <b th:text="${@bi.t('resident.fee.title')}"
-                >Fee to pay at the counter</b
-              >
-              <strong class="pg-feebox__amount" th:text="${@bi.fee(ticket.fee)}"
-                >₱50.00</strong
-              >
+              <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter</b>
+              <strong class="pg-feebox__amount" th:text="${@bi.fee(ticket.fee)}">₱50.00</strong>
             </div>
 
             <div class="pg-stack">
-              <button
-                class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block"
-                type="button"
-                th:if="${active}"
-                data-copy
-                th:text="${@bi.t('resident.ticket.copy')}"
-              >
-                Copy link
-              </button>
-              <span
-                id="copied"
-                hidden
-                th:text="${@bi.t('resident.ticket.copied')}"
-                >Link copied</span
-              >
-              <a
-                class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block"
-                th:unless="${active}"
-                th:href="@{/request/document}"
-                th:text="${@bi.t('resident.cta.new-ticket')}"
-                >Get a new ticket</a
-              >
+              <!-- hx-preserve: the refresh keeps this button as it is, so "Sound on" stays after a tap -->
+              <button id="sound-btn" class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
+                      hx-preserve th:text="${@bi.t('resident.ticket.sound-on')}">Turn on sound</button>
+              <button class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
+                      data-copy th:text="${@bi.t('resident.ticket.copy')}">Copy link</button>
+              <span id="copied" hidden th:text="${@bi.t('resident.ticket.copied')}">Link copied</span>
+              <a class="pg-btn pg-btn--lg pg-btn--primary pg-btn--block" th:unless="${active}" th:href="@{/request/document}"
+                 th:text="${@bi.t('resident.cta.new-ticket')}">Get a new ticket</a>
             </div>
           </div>
         </div>
       </div>
+      <span id="sound-done" hidden th:text="${@bi.t('resident.ticket.sound-done')}">Sound on</span>
+      <span id="turn-title" hidden th:text="${@bi.t('resident.ticket.your-turn')}">Your turn!</span>
     </main>
 
     <script th:src="@{/js/ticket-alert.js}" defer></script>
@@ -221,9 +109,7 @@
         try {
           await navigator.clipboard.writeText(location.href);
           btn.textContent = document.getElementById("copied").textContent;
-        } catch (err) {
-          /* clipboard blocked: the link is still in the address bar */
-        }
+        } catch (err) { /* clipboard blocked: the link is still in the address bar */ }
       });
     </script>
   </body>

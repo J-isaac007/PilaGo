@@ -1,5 +1,7 @@
 package com.queupid.pilago.config;
 
+import java.util.function.Function;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,11 +12,14 @@ import org.springframework.stereotype.Component;
 
 import com.queupid.pilago.model.person.BarangayCaptain;
 import com.queupid.pilago.model.person.BarangaySecretary;
+import com.queupid.pilago.model.person.StaffMember;
 import com.queupid.pilago.storage.StaffRepository;
 
 /**
- * Creates one secretary and one captain account the first time the app starts. Passwords come from
- * properties: fixed dev values locally, Render environment variables in production.
+ * Makes sure one secretary and one captain account exist, with the passwords from the properties: fixed
+ * dev values locally, Render environment variables in production. The first start creates the accounts.
+ * On later starts, if the password property was changed (for example a new {@code SECRETARY_PASSWORD} on
+ * Render), the account's password is changed to match, so the old one stops working.
  */
 @Component
 public class DataSeeder implements ApplicationRunner {
@@ -49,15 +54,23 @@ public class DataSeeder implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        if (staff.findByStaffIdIgnoreCase(secretaryId).isEmpty()) {
-            staff.save(new BarangaySecretary(secretaryName, 35, "Barangay Hall", secretaryId,
-                    encoder.encode(secretaryPassword)));
-            log.info("Created secretary account {}", secretaryId);
-        }
-        if (staff.findByStaffIdIgnoreCase(captainId).isEmpty()) {
-            staff.save(new BarangayCaptain(captainName, 50, "Barangay Hall", captainId,
-                    encoder.encode(captainPassword)));
-            log.info("Created captain account {}", captainId);
-        }
+        ensureAccount("secretary", secretaryId, secretaryPassword,
+                hash -> new BarangaySecretary(secretaryName, 35, "Barangay Hall", secretaryId, hash));
+        ensureAccount("captain", captainId, captainPassword,
+                hash -> new BarangayCaptain(captainName, 50, "Barangay Hall", captainId, hash));
+    }
+
+    /** Creates the account, or changes its password if the property no longer matches it. */
+    private void ensureAccount(String role, String staffId, String password, Function<String, StaffMember> create) {
+        staff.findByStaffIdIgnoreCase(staffId).ifPresentOrElse(member -> {
+            if (!encoder.matches(password, member.getPasswordHash())) {
+                member.changePasswordHash(encoder.encode(password));
+                staff.save(member);
+                log.info("Changed the {} account {} password to the configured one", role, staffId);
+            }
+        }, () -> {
+            staff.save(create.apply(encoder.encode(password)));
+            log.info("Created {} account {}", role, staffId);
+        });
     }
 }

@@ -50,12 +50,12 @@
             <h2 th:text="${@bi.t('staff.residency')}">Residency check</h2>
             <div class="st-check st-check--ok" th:if="${residencyProblem == null}">
               <svg th:replace="~{staff/fragments :: check}"></svg>
-              <div><b th:text="${@bi.t('staff.residency.passed')}">Passed · Pasado</b>
+              <div><b th:text="${@bi.t('staff.residency.passed')}">Passed</b>
                 <span th:text="${@bi.t('staff.residency.no-record')}">No pending record</span></div>
             </div>
             <div class="st-check st-check--hold" th:if="${residencyProblem != null}">
               <svg th:replace="~{staff/fragments :: alert}"></svg>
-              <div><b th:text="${@bi.t('staff.residency.check')}">Needs checking · Kailangang suriin</b>
+              <div><b th:text="${@bi.t('staff.residency.check')}">Needs checking</b>
                 <span th:text="${@bi.t(residencyProblem.messageKey)}">Lived here less than 6 months.</span></div>
             </div>
           </section>

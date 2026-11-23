@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -74,14 +75,19 @@ public class SecurityConfig {
         };
     }
 
-    /** After login the captain goes to the signing list; the secretary to the dashboard. */
+    /** A staff member's home page: the captain's signing list, or the secretary's dashboard. */
+    public static String homeFor(Authentication authentication) {
+        boolean captain = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(("ROLE_" + CAPTAIN)::equals);
+        return captain ? "/captain" : "/staff";
+    }
+
+    /** After login, go to the home page for the role. */
     private static AuthenticationSuccessHandler homeForRole(LoginAttempts attempts) {
         return (request, response, authentication) -> {
             attempts.recordSuccess(authentication.getName());
-            boolean captain = authentication.getAuthorities().stream()
-                    .map(GrantedAuthority::getAuthority)
-                    .anyMatch(("ROLE_" + CAPTAIN)::equals);
-            response.sendRedirect(request.getContextPath() + (captain ? "/captain" : "/staff"));
+            response.sendRedirect(request.getContextPath() + homeFor(authentication));
         };
     }
 

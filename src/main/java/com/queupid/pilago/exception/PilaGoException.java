@@ -2,7 +2,7 @@ package com.queupid.pilago.exception;
 
 /**
  * Parent of PilaGo's unchecked exceptions. Each one carries a message key so the
- * {@code GlobalExceptionHandler} can show a bilingual error.
+ * {@code GlobalExceptionHandler} can show the error in plain words.
  */
 public abstract class PilaGoException extends RuntimeException {
 

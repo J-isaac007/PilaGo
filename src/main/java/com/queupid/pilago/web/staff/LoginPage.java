@@ -21,9 +21,7 @@ public class LoginPage {
             @RequestParam(required = false) String locked,
             Authentication auth, Model model) {
         if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
-            boolean captain = auth.getAuthorities().stream()
-                    .anyMatch(a -> a.getAuthority().equals("ROLE_" + SecurityConfig.CAPTAIN));
-            return captain ? "redirect:/captain" : "redirect:/staff";
+            return "redirect:" + SecurityConfig.homeFor(auth); // already logged in
         }
         model.addAttribute("loginError", error != null);
         model.addAttribute("locked", locked != null);
