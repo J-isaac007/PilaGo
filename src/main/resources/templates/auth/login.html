@@ -13,6 +13,7 @@
         </div>
 
         <p class="pg-callout pg-callout--warning" role="alert" th:if="${loginError}" th:text="${@bi.t('auth.error')}">Wrong Staff ID or password.</p>
+        <p class="pg-callout pg-callout--warning" role="alert" th:if="${locked}" th:text="${@bi.t('auth.locked')}">Too many tries. Try again in 10 minutes.</p>
         <p class="pg-callout" role="status" th:if="${loggedOut}" th:text="${@bi.t('auth.logged-out')}">You are logged out.</p>
 
         <label class="pg-field">
