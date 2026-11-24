@@ -293,3 +293,6 @@ select.pg-input { appearance: auto; }
   .pg-actions .pg-btn { width: auto; }
   .pg-ticket-layout { display: grid; grid-template-columns: 440px 1fr; gap: var(--spacing-xl); align-items: start; }
 }
+
+.pg-qr { text-align: center; }
+.pg-qr img { max-width: 100%; height: auto; }

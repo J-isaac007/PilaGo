@@ -82,7 +82,11 @@
               <b th:text="${@bi.t('resident.fee.title')}">Fee to pay at the counter</b>
               <strong class="pg-feebox__amount" th:text="${@bi.fee(ticket.fee)}">₱50.00</strong>
             </div>
-
+            <section class="pg-panel pg-qr" th:if="${active}">
+  <h2 class="pg-h3" th:text="${@bi.t('resident.ticket.qr-title')}">Open this ticket on another phone</h2>
+  <img th:src="@{/ticket/{t}/qr.png(t=${ticket.token})}" width="160" height="160"
+       th:alt="${@bi.t('resident.ticket.qr-alt')}" alt="QR code" />
+</section>
             <div class="pg-stack">
               <!-- hx-preserve: the refresh keeps this button as it is, so "Sound on" stays after a tap -->
               <button id="sound-btn" class="pg-btn pg-btn--lg pg-btn--secondary pg-btn--block" type="button" th:if="${active}"
