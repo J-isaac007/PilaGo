@@ -19,7 +19,7 @@
     <!-- Staff header: logo, who is logged in, Log out -->
     <header class="pg-header" th:fragment="header">
       <a class="pg-header__brand" th:href="${me.role == 'CAPTAIN'} ? @{/captain} : @{/staff}">
-        <img th:src="@{/img/pilago-logo-192.png}" alt="" />
+       <img th:src="@{/img/pilago-logo-white.svg}" alt="" />
         <span><b>PilaGo</b><small>Brgy. San Isidro</small></span>
       </a>
       <div class="st-user">

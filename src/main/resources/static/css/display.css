@@ -6,7 +6,7 @@ body.tv { height: 100vh; overflow: hidden; display: grid; grid-template-rows: au
 
 .tv-bar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: var(--bg-header); }
 .tv-brand { display: flex; align-items: center; gap: 1rem; }
-.tv-brand img { width: 3.5rem; height: 3.5rem; border-radius: .9rem; }
+.tv-brand img { width: 3.5rem; height: 3.5rem; object-fit: contain; }
 .tv-brand b, .tv-clock b { display: block; font-size: 1.75rem; font-weight: 800; line-height: 1.1; }
 .tv-brand small, .tv-clock small { font-size: 1.1rem; }
 .tv-clock { text-align: right; }
