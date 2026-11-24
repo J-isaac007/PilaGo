@@ -6,11 +6,38 @@
 
   const btn = document.getElementById("sound-btn");
 
+  // Browsers don't label voices as male or female, so pick an English voice whose name is a known female
+  // voice (Windows, Chrome, Mac/iPhone, Android), or says "Female". If none is installed, use the
+  // default English voice.
+  const FEMALE_VOICES = [
+    "zira", "aria", "jenny", "hazel", "susan", "catherine", "natasha", "rosa",  // Windows (Microsoft)
+    "google us english", "google uk english female",                           // Chrome
+    "samantha", "karen", "moira", "tessa", "victoria", "fiona", "serena",       // Mac and iPhone
+    "en-us-x-sfg", "en-us-x-iob", "en-us-x-iog", "en-us-x-tpc", "en-us-x-tpf"   // Android
+  ];
+  let voice = null;
+
+  function pickVoice() {
+    if (!("speechSynthesis" in window)) return;
+    const english = window.speechSynthesis.getVoices().filter(function (v) { return /^en/i.test(v.lang); });
+    function named(v, words) {
+      const name = v.name.toLowerCase();
+      return words.some(function (w) { return name.includes(w); });
+    }
+    voice = english.find(function (v) { return named(v, FEMALE_VOICES) || /female/i.test(v.name); }) || null;
+  }
+
+  if ("speechSynthesis" in window) {
+    pickVoice();
+    window.speechSynthesis.addEventListener("voiceschanged", pickVoice);   // Chrome loads voices later
+  }
+
   function speak(text) {
     if (!("speechSynthesis" in window)) return;
     window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
+    if (voice) u.voice = voice;
+    u.lang = voice ? voice.lang : "en-US";
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
   }
