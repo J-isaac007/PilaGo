@@ -167,7 +167,7 @@ img { max-width: 100%; }
 .pg-muted { color: var(--text-muted); font-size: 14px; }
 .pg-secondary { color: var(--text-secondary); font-size: 14px; }
 .pg-fee { color: var(--text-accent); font-weight: 800; }
-.pg-link { display: block; text-align: center; font-weight: 800; text-decoration: none; padding: var(--spacing-xs); }
+.pg-link { display: block; text-align: center; font-weight: 800; text-decoration: none; padding: var(--spacing-xs); color: var(--text-brand-strong); }
 .pg-stack { display: grid; gap: var(--spacing-sm); }
 .pg-btn--block { width: 100%; }
 
