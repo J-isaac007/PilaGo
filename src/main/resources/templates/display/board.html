@@ -65,6 +65,7 @@
       <p><span th:text="${@bi.t('display.footer.priority')}">Seniors (60+) and PWD are served first</span> &nbsp;•&nbsp;
         <span th:text="${@bi.t('display.footer.get')}">Get your ticket on your phone:</span>
         <span th:text="${publicUrl}">pilago-sanisidro.onrender.com</span></p>
+        <img class="tv-qr" th:src="@{/qr/home.png}" width="120" height="120" th:alt="${@bi.t('display.qr-alt')}" alt="QR code" />
     </footer>
     
     <script th:src="@{/js/board.js}" defer></script>

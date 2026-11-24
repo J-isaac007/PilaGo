@@ -47,3 +47,5 @@ body.tv { height: 100vh; overflow: hidden; display: grid; grid-template-rows: au
 .tv-sound--on { opacity: .6; }
 @media (prefers-reduced-motion: reduce) { .tv-hero--flash { animation: none; } }
 .tv-right { display: flex; align-items: center; gap: 1.5rem; }
+.tv-foot { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+.tv-qr { width: 120px; height: 120px; background: #fff; padding: 6px; border-radius: 8px; }

@@ -36,7 +36,7 @@ public class DisplayPage {
 
     private final RequestQueue queue;
 
-    @Value("${pilago.public-url:pilago-sanisidro.onrender.com}")
+    @Value("${pilago.public-url}")
     private String publicUrl;
 
     public DisplayPage(RequestQueue queue) {
