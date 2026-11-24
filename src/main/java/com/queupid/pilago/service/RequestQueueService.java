@@ -20,6 +20,7 @@ import com.queupid.pilago.exception.QueueBusyException;
 import com.queupid.pilago.exception.TicketNotFoundException;
 import com.queupid.pilago.model.document.DocumentType;
 import com.queupid.pilago.model.person.Resident;
+import com.queupid.pilago.model.person.StaffMember;
 import com.queupid.pilago.model.request.HoldReason;
 import com.queupid.pilago.model.request.Request;
 import com.queupid.pilago.model.request.RequestStatus;
@@ -120,7 +121,7 @@ public class RequestQueueService implements RequestQueue {
     // ── Secretary ────────────────────────────────────────────────────────
 
     @Override
-    public synchronized Optional<Request> callNext(String staffName) {
+    public synchronized Optional<Request> callNext(StaffMember by) {
         rollOverIfNewDay();
         if (nowServing != null && nowServing.getStatus() == RequestStatus.PROCESSING) {
             throw new QueueBusyException(nowServing.getTicketNumber());
@@ -130,7 +131,7 @@ public class RequestQueueService implements RequestQueue {
             return Optional.empty();
         }
         Request next = waitingRequests.get(0);
-        next.call(staffName, now());
+        next.call(by, now());
         waitingRequests.remove(0);
         nowServing = next;
         storage.save(next);
@@ -146,20 +147,20 @@ public class RequestQueueService implements RequestQueue {
     }
 
     @Override
-    public synchronized void markPaid(String ticket) {
+    public synchronized void markPaid(String ticket, StaffMember by) {
         Request request = require(ticket);
         if (request.getStatus() != RequestStatus.PROCESSING) {
             throw new InvalidStatusTransitionException(ticket, request.getStatus(), RequestStatus.PROCESSING,
                     "payment is recorded while the ticket is at the counter");
         }
-        request.markAsPaid(now());
+        request.markAsPaid(by, now());
         storage.save(request);
     }
 
     @Override
-    public synchronized void forwardToCaptain(String ticket, String staffName) {
+    public synchronized void forwardToCaptain(String ticket, StaffMember by) {
         Request request = require(ticket);
-        request.forwardToCaptain(staffName, now());
+        request.forwardToCaptain(by, now());
         leaveLineAndCounter(request);
         storage.save(request);
     }
@@ -189,25 +190,25 @@ public class RequestQueueService implements RequestQueue {
     }
 
     @Override
-    public synchronized void release(String ticket) {
+    public synchronized void release(String ticket, StaffMember by) {
         Request request = require(ticket);
-        request.updateStatus(RequestStatus.RELEASED, now());
+        request.release(by, now());
         storage.save(request);
     }
 
     // ── Captain ──────────────────────────────────────────────────────────
 
     @Override
-    public synchronized void sign(String ticket, String staffName) {
+    public synchronized void sign(String ticket, StaffMember by) {
         Request request = require(ticket);
-        request.sign(staffName, now());
+        request.sign(by, now());
         storage.save(request);
     }
 
     @Override
-    public synchronized void returnToSecretary(String ticket, HoldReason reason, String note) {
+    public synchronized void returnToSecretary(String ticket, HoldReason reason, String note, StaffMember by) {
         Request request = require(ticket);
-        request.returnToSecretary(reason, note, now());
+        request.returnToSecretary(reason, note, by, now());
         storage.save(request);
     }
 

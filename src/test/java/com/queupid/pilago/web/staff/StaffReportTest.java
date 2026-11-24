@@ -36,7 +36,7 @@ class StaffReportTest {
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Disposition", startsWith("attachment; filename=\"pilago-report-")))
                 .andExpect(content().string(startsWith(
-                        "\uFEFFticket,name,document,purpose,status,fee,paid,issued,called,released\r\n")))
+                        "\uFEFF" + ReportCsv.HEADER + "\r\n")))
                 .andExpect(content().string(containsString(
                         "C-001,\"Aquino, Pedro T.\",\"Barangay Clearance\",\"Employment\",RELEASED,50.00,true,")));
     }
