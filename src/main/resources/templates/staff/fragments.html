@@ -60,19 +60,19 @@
     <svg th:fragment="alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
       <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
+
+    <!-- Who did each step, in the order of the flow: "Maria Santos (SEC-001) · Nov 24, 9:15 AM". Goes inside a <dl>. -->
+    <th:block th:fragment="attribution(request)">
+      <div th:replace="~{staff/fragments :: doneBy('staff.called-by', ${request.calledBy}, ${request.calledAt})}"></div>
+      <div th:replace="~{staff/fragments :: doneBy('staff.paid-to', ${request.paymentReceivedBy}, ${request.paidAt})}"></div>
+      <div th:replace="~{staff/fragments :: doneBy('staff.processed-by', ${request.forwardedBy}, ${request.forwardedAt})}"></div>
+      <div th:replace="~{staff/fragments :: doneBy('staff.returned-by', ${request.returnedBy}, ${request.returnedAt})}"></div>
+      <div th:replace="~{staff/fragments :: doneBy('staff.signed-by', ${request.signedBy}, ${request.signedAt})}"></div>
+      <div th:replace="~{staff/fragments :: doneBy('staff.released-by', ${request.releasedBy}, ${request.releasedAt})}"></div>
+    </th:block>
+    <div th:fragment="doneBy(labelKey, staff, at)" th:if="${staff != null}">
+      <dt th:text="${@bi.t(labelKey)}">Called by</dt>
+      <dd th:text="${staff.name + ' (' + staff.staffId + ') · ' + #temporals.format(at, 'MMM d, h:mm a')}">Maria Santos (SEC-001) · Nov 24, 9:15 AM</dd>
+    </div>
   </body>
-  <th:block th:fragment="attribution(request)">
-    <div th:if="${request.calledBy != null}">
-      <dt th:text="${@bi.t('staff.called-by')}">Called by</dt>
-      <dd th:text="${request.calledBy + ' · ' + #temporals.format(request.calledAt, 'MMM d, h:mm a')}">Secretary</dd>
-    </div>
-    <div th:if="${request.forwardedBy != null}">
-      <dt th:text="${@bi.t('staff.processed-by')}">Processed by</dt>
-      <dd th:text="${request.forwardedBy + ' · ' + #temporals.format(request.forwardedAt, 'MMM d, h:mm a')}">Secretary</dd>
-    </div>
-    <div th:if="${request.signedBy != null}">
-      <dt th:text="${@bi.t('staff.signed-by')}">Signed by</dt>
-      <dd th:text="${request.signedBy + ' · ' + #temporals.format(request.signedAt, 'MMM d, h:mm a')}">Captain</dd>
-    </div>
-  </th:block>
 </html>

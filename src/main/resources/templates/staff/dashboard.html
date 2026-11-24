@@ -85,7 +85,10 @@
                   <td><span class="pg-tag" th:classappend="'pg-tag--' + ${r.priorityGroup.cssModifier}"
                             th:text="${@bi.t(r.priorityGroup.messageKey)}">Senior 60+</span></td>
                   <td th:switch="${tab.name()}">
-                    <span th:case="'ON_HOLD'" th:text="${r.holdReason != null} ? ${@bi.t(r.holdReason.messageKey)} : ''">Lived here less than 6 months.</span>
+                    <th:block th:case="'ON_HOLD'">
+                      <span th:text="${r.holdReason != null} ? ${@bi.t(r.holdReason.messageKey)} : ''">Lived here less than 6 months.</span>
+                      <b class="st-returned" th:if="${r.returnedByCaptain}" th:text="${@bi.t('staff.returned-tag')}">Returned by captain</b>
+                    </th:block>
                     <span th:case="'READY'" class="pg-fee" th:text="${r.free} ? ${@bi.t('fee.free')} : ${@bi.peso(r.amountPaid)} + ' · ' + ${@bi.t('staff.paid-short')}">Free</span>
                     <span th:case="*" th:text="${row.minutes} + ' min'">12 min</span>
                   </td>

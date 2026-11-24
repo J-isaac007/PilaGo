@@ -66,7 +66,7 @@ public class CaptainPage {
     @PostMapping("/sign/{ticket}")
     public String sign(@PathVariable String ticket, Principal principal, RedirectAttributes flash) {
         StaffMember member = current.require(principal, StaffAction.SIGN);
-        queue.sign(ticket, member.getName());
+        queue.sign(ticket, member);
         flash.addFlashAttribute("toast", bi.t("captain.toast.signed", ticket));
         return "redirect:/captain";
     }
@@ -78,12 +78,12 @@ public class CaptainPage {
     @PostMapping("/return/{ticket}")
     public String returnToSecretary(@PathVariable String ticket, @RequestParam HoldReason reason,
             @RequestParam(defaultValue = "") String note, Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.RETURN_TO_SECRETARY);
+        StaffMember member = current.require(principal, StaffAction.RETURN_TO_SECRETARY);
         if (!HoldReason.returnReasons().contains(reason)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The captain cannot return with " + reason);
         }
         String trimmed = note.strip();
-        queue.returnToSecretary(ticket, reason, trimmed.length() > 200 ? trimmed.substring(0, 200) : trimmed);
+        queue.returnToSecretary(ticket, reason, trimmed.length() > 200 ? trimmed.substring(0, 200) : trimmed, member);
         flash.addFlashAttribute("toast", bi.t("captain.toast.returned", ticket));
         return "redirect:/captain";
     }
@@ -93,7 +93,7 @@ public class CaptainPage {
         StaffMember member = current.require(principal, StaffAction.SIGN);
         List<Request> toSign = queue.getForSignature();
         for (Request r : toSign) {
-            queue.sign(r.getTicketNumber(), member.getName());
+            queue.sign(r.getTicketNumber(), member);
         }
         flash.addFlashAttribute("toast", bi.t("captain.toast.signed-all", toSign.size()));
         return "redirect:/captain";
