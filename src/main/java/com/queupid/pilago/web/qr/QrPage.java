@@ -17,7 +17,7 @@ import com.queupid.pilago.service.RequestQueue;
 
 /**
  * QR code images, served from our own endpoints only.
- * 
+ *
  * <pre>
  * GET /qr/home.png              opens PilaGo (TV footer)
  * GET /ticket/{token}/qr.png    opens that ticket on another phone
@@ -32,7 +32,7 @@ public class QrPage {
     private final String publicUrl;
 
     public QrPage(RequestQueue queue,
-            @Value("${pilago.public-url:pilago-sanisidro.onrender.com}") String publicUrl) {
+            @Value("${pilago.public-url}") String publicUrl) {
         this.queue = queue;
         this.publicUrl = publicUrl;
     }
