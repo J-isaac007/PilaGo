@@ -161,3 +161,6 @@
   .st-item { grid-template-columns: 1fr; }
   .st-title h1, .st-sign-head h1 { font-size: 24px; }
 }
+
+/* "Returned by captain" under the reason on the On hold tab */
+.st-returned { display: block; margin-top: 2px; font-size: 12px; font-weight: 800; color: var(--status-on-hold-fg); }

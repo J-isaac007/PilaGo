@@ -177,7 +177,7 @@ public class StaffPage {
     @PostMapping("/call-next")
     public String callNext(Principal principal, RedirectAttributes flash) {
         StaffMember member = current.require(principal, StaffAction.CALL_NEXT);
-        queue.callNext(member.getName()).ifPresentOrElse(
+        queue.callNext(member).ifPresentOrElse(
                 r -> toast(flash, "staff.toast.called", r.getTicketNumber()),
                 () -> toast(flash, "staff.toast.nobody"));
         return "redirect:/staff";
@@ -216,8 +216,8 @@ public class StaffPage {
 
     @PostMapping("/request/{ticket}/pay")
     public String pay(@PathVariable String ticket, Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.RECORD_PAYMENT);
-        queue.markPaid(ticket);
+        StaffMember member = current.require(principal, StaffAction.RECORD_PAYMENT);
+        queue.markPaid(ticket, member);
         toast(flash, "staff.toast.paid", ticket);
         return "redirect:/staff/request/" + ticket;
     }
@@ -225,7 +225,7 @@ public class StaffPage {
     @PostMapping("/request/{ticket}/forward")
     public String forward(@PathVariable String ticket, Principal principal, RedirectAttributes flash) {
         StaffMember member = current.require(principal, StaffAction.FORWARD_TO_CAPTAIN);
-        queue.forwardToCaptain(ticket, member.getName());
+        queue.forwardToCaptain(ticket, member);
         toast(flash, "staff.toast.forwarded", ticket);
         return "redirect:/staff";
     }
@@ -251,8 +251,8 @@ public class StaffPage {
 
     @PostMapping("/release/{ticket}")
     public String release(@PathVariable String ticket, Principal principal, RedirectAttributes flash) {
-        current.require(principal, StaffAction.RELEASE);
-        queue.release(ticket);
+        StaffMember member = current.require(principal, StaffAction.RELEASE);
+        queue.release(ticket, member);
         toast(flash, "staff.toast.released", ticket);
         return "redirect:/staff?tab=ready";
     }

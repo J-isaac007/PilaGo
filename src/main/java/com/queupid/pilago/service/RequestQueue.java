@@ -8,6 +8,7 @@ import com.queupid.pilago.exception.DuplicateRequestException;
 import com.queupid.pilago.exception.InvalidStatusTransitionException;
 import com.queupid.pilago.exception.QueueBusyException;
 import com.queupid.pilago.exception.TicketNotFoundException;
+import com.queupid.pilago.model.person.StaffMember;
 import com.queupid.pilago.model.request.HoldReason;
 import com.queupid.pilago.model.request.Request;
 
@@ -21,6 +22,10 @@ import com.queupid.pilago.model.request.Request;
  * <p>Ticket arguments are today's ticket numbers, e.g. {@code "S-004"}. Every method that takes one
  * throws {@link TicketNotFoundException} if no such ticket exists today, and
  * {@link InvalidStatusTransitionException} if the ticket is not in a status where that action is allowed.
+ *
+ * <p>Staff actions take {@code by}, the logged-in staff member, so the request remembers who called it,
+ * received the payment, forwarded, returned, signed and released it. The versions without {@code by}
+ * (used by the sample day and older tests) record nobody.
  */
 public interface RequestQueue {
 
@@ -58,24 +63,28 @@ public interface RequestQueue {
      * @return the called ticket, or empty if nobody is waiting
      * @throws QueueBusyException if Now serving is still being processed
      */
+    Optional<Request> callNext(StaffMember by);
+
     default Optional<Request> callNext() {
         return callNext(null);
     }
 
-    Optional<Request> callNext(String staffName);
-
     /** The resident did not come to the counter: → NO_SHOW. Clears Now serving if it was this ticket. */
     void skip(String ticket);
 
-    /** Records payment of the full fee. Free documents need no payment. */
-    void markPaid(String ticket);
+    /** Records payment of the full fee and who received it. Free documents need no payment. */
+    void markPaid(String ticket, StaffMember by);
+
+    default void markPaid(String ticket) {
+        markPaid(ticket, null);
+    }
 
     /** PROCESSING → FOR_SIGNATURE. Fails if a fee is due and not paid. */
+    void forwardToCaptain(String ticket, StaffMember by);
+
     default void forwardToCaptain(String ticket) {
         forwardToCaptain(ticket, null);
     }
-
-    void forwardToCaptain(String ticket, String staffName);
 
     /** WAITING or PROCESSING → ON_HOLD with a reason; {@code note} may be null. */
     void putOnHold(String ticket, HoldReason reason, String note);
@@ -84,16 +93,20 @@ public interface RequestQueue {
     void verify(String ticket);
 
     /** READY → RELEASED: the resident picked up the document. */
-    void release(String ticket);
+    void release(String ticket, StaffMember by);
+
+    default void release(String ticket) {
+        release(ticket, null);
+    }
 
     // ── Captain (Part 3) ─────────────────────────────────────────────────
 
     /** FOR_SIGNATURE → READY. */
+    void sign(String ticket, StaffMember by);
+
     default void sign(String ticket) {
         sign(ticket, null);
     }
-
-    void sign(String ticket, String staffName);
 
     /**
      * The captain sends a request back instead of signing it: FOR_SIGNATURE → ON_HOLD, shown on the
@@ -105,7 +118,11 @@ public interface RequestQueue {
      * @param note   what to fix; required when the reason is OTHER
      * @throws com.queupid.pilago.exception.ReturnNoteRequiredException if the reason is OTHER without a note
      */
-    void returnToSecretary(String ticket, HoldReason reason, String note);
+    void returnToSecretary(String ticket, HoldReason reason, String note, StaffMember by);
+
+    default void returnToSecretary(String ticket, HoldReason reason, String note) {
+        returnToSecretary(ticket, reason, note, null);
+    }
 
     // ── Lists and lookups (everyone) ─────────────────────────────────────
 

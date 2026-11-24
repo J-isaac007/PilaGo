@@ -114,37 +114,60 @@ class StaffRolesTest {
     void staffActionsSaveAndDisplayTheirAttribution() throws Exception {
         mvc.perform(post("/staff/request/C-003/forward").with(SECRETARY).with(csrf()))
                 .andExpect(redirectedUrl("/staff"));
+        // P-005: called, paid, forwarded, returned by the captain, verified, called and forwarded again,
+        // signed and released
         mvc.perform(post("/staff/call-next").with(SECRETARY).with(csrf()))
                 .andExpect(flash().attribute("toast", containsString("P-005 called")));
+        mvc.perform(post("/staff/request/P-005/pay").with(SECRETARY).with(csrf()));
         mvc.perform(post("/staff/request/P-005/forward").with(SECRETARY).with(csrf()))
                 .andExpect(redirectedUrl("/staff"));
 
         mvc.perform(get("/captain").param("view", "P-005").with(CAPTAIN))
                 .andExpect(status().isOk())
                 .andExpect(content().string(containsString("Called by")))
+                .andExpect(content().string(containsString("Payment received by")))
                 .andExpect(content().string(containsString("Processed by")))
-                .andExpect(content().string(containsString("Maria Santos ·")));
+                .andExpect(content().string(containsString("Maria Santos (SEC-001) ·")));
+
+        mvc.perform(post("/captain/return/P-005").with(CAPTAIN).with(csrf()).param("reason", "WRONG_DETAILS"))
+                .andExpect(redirectedUrl("/captain"));
+        mvc.perform(get("/staff").param("tab", "on-hold").with(SECRETARY))
+                .andExpect(content().string(containsString("Returned by captain")));
+        mvc.perform(post("/staff/request/P-005/verify").with(SECRETARY).with(csrf()));
+        mvc.perform(post("/staff/call-next").with(SECRETARY).with(csrf()))
+                .andExpect(flash().attribute("toast", containsString("P-005 called")));
+        mvc.perform(post("/staff/request/P-005/forward").with(SECRETARY).with(csrf()))
+                .andExpect(redirectedUrl("/staff"));
 
         mvc.perform(post("/captain/sign/P-005").with(CAPTAIN).with(csrf()))
                 .andExpect(redirectedUrl("/captain"));
         mvc.perform(post("/captain/sign-all").with(CAPTAIN).with(csrf()))
                 .andExpect(redirectedUrl("/captain"));
+        mvc.perform(post("/staff/release/P-005").with(SECRETARY).with(csrf()));
         mvc.perform(get("/staff/request/P-005").with(SECRETARY))
                 .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Returned by")))
                 .andExpect(content().string(containsString("Signed by")))
-                .andExpect(content().string(containsString("Roberto Mendoza ·")));
+                .andExpect(content().string(containsString("Released by")))
+                .andExpect(content().string(containsString("Roberto Mendoza (CAP-001) ·")));
 
+        // Saved in the database as links to the staff accounts
         var saved = requests.findByTicketDateOrderByDailySequenceAsc(LocalDate.now(clock));
         Request ticket = saved.stream().filter(r -> r.getTicketNumber().equals("P-005")).findFirst().orElseThrow();
-        assertThat(ticket.getCalledBy()).isEqualTo("Maria Santos");
-        assertThat(ticket.getForwardedBy()).isEqualTo("Maria Santos");
-        assertThat(ticket.getSignedBy()).contains("Roberto Mendoza");
-        assertThat(ticket.getCalledAt()).isNotNull();
-        assertThat(ticket.getForwardedAt()).isAfterOrEqualTo(ticket.getCalledAt());
+        assertThat(ticket.getCalledBy().getStaffId()).isEqualTo("SEC-001");
+        assertThat(ticket.getPaymentReceivedBy().getStaffId()).isEqualTo("SEC-001");
+        assertThat(ticket.getForwardedBy().getStaffId()).isEqualTo("SEC-001");
+        assertThat(ticket.getReturnedBy().getStaffId()).isEqualTo("CAP-001");
+        assertThat(ticket.getSignedBy().getStaffId()).isEqualTo("CAP-001");
+        assertThat(ticket.getReleasedBy().getStaffId()).isEqualTo("SEC-001");
+        assertThat(ticket.getPaidAt()).isNotNull();
+        assertThat(ticket.getReturnedAt()).isAfterOrEqualTo(ticket.getPaidAt());
+        assertThat(ticket.getForwardedAt()).isAfterOrEqualTo(ticket.getReturnedAt()); // the second round
         assertThat(ticket.getSignedAt()).isAfterOrEqualTo(ticket.getForwardedAt());
+        assertThat(ticket.getReleasedAt()).isAfterOrEqualTo(ticket.getSignedAt());
         assertThat(saved).filteredOn(r -> r.getTicketNumber().equals("C-003") || r.getTicketNumber().equals("S-004"))
                 .hasSize(2).allSatisfy(r -> {
-                    assertThat(r.getSignedBy()).contains("Roberto Mendoza");
+                    assertThat(r.getSignedBy().getName()).contains("Roberto Mendoza");
                     assertThat(r.getSignedAt()).isNotNull();
                 });
     }

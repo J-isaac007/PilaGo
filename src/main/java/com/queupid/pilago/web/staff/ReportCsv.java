@@ -5,6 +5,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Function;
 
+import com.queupid.pilago.model.person.StaffMember;
 import com.queupid.pilago.model.request.Request;
 import com.queupid.pilago.model.request.RequestStatus;
 
@@ -18,7 +19,8 @@ import com.queupid.pilago.model.request.RequestStatus;
  */
 public class ReportCsv {
 
-    public static final String HEADER = "ticket,name,document,purpose,status,fee,paid,issued,called,released";
+    public static final String HEADER = "ticket,name,document,purpose,status,fee,paid,issued,called,released,"
+            + "called_by,payment_received_by,forwarded_by,returned_by,signed_by,released_by";
 
     private static final DateTimeFormatter TIME = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
@@ -33,8 +35,10 @@ public class ReportCsv {
         // The first character is a UTF-8 marker that helps Excel read accents and the peso sign correctly.
         StringBuilder csv = new StringBuilder("\uFEFF").append(HEADER).append("\r\n");
         for (Request request : requests) {
-            // RELEASED is a final status, so the last update of a released ticket is its release time.
-            LocalDateTime released = request.getStatus() == RequestStatus.RELEASED ? request.getUpdatedAt() : null;
+            // Tickets released before the release time was recorded: RELEASED is a final status, so their last
+            // update is the release time.
+            LocalDateTime released = request.getReleasedAt() != null ? request.getReleasedAt()
+                    : request.getStatus() == RequestStatus.RELEASED ? request.getUpdatedAt() : null;
             csv.append(String.join(",",
                     request.getTicketNumber(),
                     text(request.getResident().getName()),
@@ -45,13 +49,24 @@ public class ReportCsv {
                     Boolean.toString(request.isPaid()),
                     time(request.getCreatedAt()),
                     time(request.getCalledAt()),
-                    time(released))).append("\r\n");
+                    time(released),
+                    staffId(request.getCalledBy()),
+                    staffId(request.getPaymentReceivedBy()),
+                    staffId(request.getForwardedBy()),
+                    staffId(request.getReturnedBy()),
+                    staffId(request.getSignedBy()),
+                    staffId(request.getReleasedBy()))).append("\r\n");
         }
         return csv.toString();
     }
 
     private static String time(LocalDateTime time) {
         return time == null ? "" : time.format(TIME);
+    }
+
+    /** The Staff ID (e.g. SEC-001), which stays the same even if a name changes; empty if nobody. */
+    private static String staffId(StaffMember staff) {
+        return staff == null ? "" : text(staff.getStaffId());
     }
 
     private static String text(String value) {

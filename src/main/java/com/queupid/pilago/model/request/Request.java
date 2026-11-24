@@ -14,6 +14,7 @@ import com.queupid.pilago.model.document.Payable;
 import com.queupid.pilago.model.document.Purpose;
 import com.queupid.pilago.model.person.PriorityGroup;
 import com.queupid.pilago.model.person.Resident;
+import com.queupid.pilago.model.person.StaffMember;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -86,11 +87,27 @@ public class Request implements Payable {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime calledAt;
-    private String calledBy;
-    private String forwardedBy;
+
+    // Who did each step, linked to their staff account (so the Staff ID stays known even if a name
+    // changes). Null for steps done by the sample day. After a captain return the request goes through
+    // call and forward again, and the second round replaces the first.
+    @ManyToOne
+    private StaffMember calledBy;
+    @ManyToOne
+    private StaffMember paymentReceivedBy;
+    private LocalDateTime paidAt;
+    @ManyToOne
+    private StaffMember forwardedBy;
     private LocalDateTime forwardedAt;
-    private String signedBy;
+    @ManyToOne
+    private StaffMember returnedBy;
+    private LocalDateTime returnedAt;
+    @ManyToOne
+    private StaffMember signedBy;
     private LocalDateTime signedAt;
+    @ManyToOne
+    private StaffMember releasedBy;
+    private LocalDateTime releasedAt;
 
     @Transient
     private Document document;
@@ -137,21 +154,31 @@ public class Request implements Payable {
         updatedAt = now;
     }
 
-    public void call(String staffName, LocalDateTime now) {
+    /** The secretary calls this ticket to the counter: WAITING → PROCESSING. */
+    public void call(StaffMember by, LocalDateTime now) {
         updateStatus(RequestStatus.PROCESSING, now);
-        calledBy = staffName;
+        calledBy = by;
     }
 
-    public void forwardToCaptain(String staffName, LocalDateTime now) {
+    /** The secretary sends it to the captain: PROCESSING → FOR_SIGNATURE (the fee must be paid). */
+    public void forwardToCaptain(StaffMember by, LocalDateTime now) {
         updateStatus(RequestStatus.FOR_SIGNATURE, now);
-        forwardedBy = staffName;
+        forwardedBy = by;
         forwardedAt = now;
     }
 
-    public void sign(String staffName, LocalDateTime now) {
+    /** The captain signs: FOR_SIGNATURE → READY. */
+    public void sign(StaffMember by, LocalDateTime now) {
         updateStatus(RequestStatus.READY, now);
-        signedBy = staffName;
+        signedBy = by;
         signedAt = now;
+    }
+
+    /** The resident picks up the document: READY → RELEASED. */
+    public void release(StaffMember by, LocalDateTime now) {
+        updateStatus(RequestStatus.RELEASED, now);
+        releasedBy = by;
+        releasedAt = now;
     }
 
     /** Puts the request on hold and remembers why. */
@@ -171,6 +198,11 @@ public class Request implements Payable {
      * @throws ReturnNoteRequiredException if the reason is OTHER and there is no note
      */
     public void returnToSecretary(HoldReason reason, String note, LocalDateTime now) {
+        returnToSecretary(reason, note, null, now);
+    }
+
+    /** Same as {@link #returnToSecretary(HoldReason, String, LocalDateTime)}, remembering which captain did it. */
+    public void returnToSecretary(HoldReason reason, String note, StaffMember by, LocalDateTime now) {
         if (status != RequestStatus.FOR_SIGNATURE) {
             throw new InvalidStatusTransitionException(ticketNumber, status, RequestStatus.ON_HOLD,
                     "only requests waiting for the captain's signature can be returned");
@@ -183,15 +215,24 @@ public class Request implements Payable {
         }
         putOnHold(reason, note, now);
         returnedByCaptain = true;
+        returnedBy = by;
+        returnedAt = now;
     }
 
     /** Records that the resident paid the full fee at the counter. */
     public void markAsPaid(LocalDateTime now) {
+        markAsPaid(null, now);
+    }
+
+    /** Records the payment and who received it. Paying twice does nothing (the first record stays). */
+    public void markAsPaid(StaffMember receivedBy, LocalDateTime now) {
         if (paid) {
             return;
         }
         this.paid = true;
         this.amountPaid = computeFee();
+        this.paymentReceivedBy = receivedBy;
+        this.paidAt = now;
         this.updatedAt = now;
     }
 
@@ -294,11 +335,21 @@ public class Request implements Payable {
         return calledAt;
     }
 
-    public String getCalledBy() {
+    /** Who called this ticket to the counter; {@code null} if not called or called by the sample day. */
+    public StaffMember getCalledBy() {
         return calledBy;
     }
 
-    public String getForwardedBy() {
+    /** Who received the payment. */
+    public StaffMember getPaymentReceivedBy() {
+        return paymentReceivedBy;
+    }
+
+    public LocalDateTime getPaidAt() {
+        return paidAt;
+    }
+
+    public StaffMember getForwardedBy() {
         return forwardedBy;
     }
 
@@ -306,12 +357,30 @@ public class Request implements Payable {
         return forwardedAt;
     }
 
-    public String getSignedBy() {
+    /** The captain who last sent this request back to the secretary. */
+    public StaffMember getReturnedBy() {
+        return returnedBy;
+    }
+
+    public LocalDateTime getReturnedAt() {
+        return returnedAt;
+    }
+
+    public StaffMember getSignedBy() {
         return signedBy;
     }
 
     public LocalDateTime getSignedAt() {
         return signedAt;
+    }
+
+    /** Who handed the document to the resident. */
+    public StaffMember getReleasedBy() {
+        return releasedBy;
+    }
+
+    public LocalDateTime getReleasedAt() {
+        return releasedAt;
     }
 
     @Override
